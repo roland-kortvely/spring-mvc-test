@@ -1,10 +1,13 @@
 package sk.rolandkortvely.cassovia.controllers;
 
-import com.itextpdf.text.*;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.context.annotation.Scope;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -185,6 +188,13 @@ public class WebController extends AbstractController implements HandlerIntercep
         } else {
             user = new User(sessionFactory);
             flash("info", "User created!");
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("cassovia@example.com");
+            message.setTo(data.getEmail());
+            message.setSubject("Welcome, " + data.getUsername() + "!");
+            message.setText("Your account has been successfully created");
+            emailSender.send(message);
         }
 
         user.setUsername(data.getUsername());

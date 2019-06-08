@@ -3,6 +3,8 @@ package sk.rolandkortvely.cassovia.services;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import sk.rolandkortvely.cassovia.models.User;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 
@@ -17,14 +19,8 @@ public class TestService {
     @Autowired
     private SessionFactory sessionFactory;
 
-    @GET
-    @Path("/")
-    @Produces("application/json")
-    public ResponseEntity<User> test() {
-        return ResponseEntity.ok().body(
-                User.first(sessionFactory)
-        );
-    }
+    @Autowired
+    public JavaMailSender emailSender;
 
     @GET
     @Path("/crypt/{text}")

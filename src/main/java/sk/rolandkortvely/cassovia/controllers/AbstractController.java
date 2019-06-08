@@ -3,6 +3,7 @@ package sk.rolandkortvely.cassovia.controllers;
 import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import sk.rolandkortvely.cassovia.controllers.traits.Auth;
@@ -24,6 +25,9 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
 
     @Autowired
     protected HttpServletRequest request;
+
+    @Autowired
+    public JavaMailSender emailSender;
 
     @ModelAttribute("error")
     public String error() {
