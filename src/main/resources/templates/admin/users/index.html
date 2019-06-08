@@ -34,7 +34,7 @@
 
             <ul class="nav navbar-top-links navbar-right pull-right">
                 <li>
-                    <a href="/profile">Welcome <b class="hidden-xs" th:text="${auth.username}"></b></a>
+                    <a href="javascript:void(0)">Welcome <b class="hidden-xs" th:text="${auth.username}"></b></a>
                 </li>
                 <li>
                     <a href="/logout"><b class="hidden-xs">Logout</b></a>
@@ -70,6 +70,8 @@
                 <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
                     <a href="/admin/users/create"
                        class="btn btn-primary pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light">Add</a>
+                    <a href="/admin/users/export" target="_blank"
+                       class="btn btn-default pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light">Export</a>
                 </div>
             </div>
 

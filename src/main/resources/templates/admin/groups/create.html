@@ -63,7 +63,33 @@
         <div class="container-fluid">
             <div class="row bg-title">
                 <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
-                    <h4 class="page-title">Users</h4>
+                    <h4 class="page-title">User Groups</h4>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="white-box">
+
+                        <form class="form-horizontal form-material" method="post" th:action="@{/admin/groups/store}" th:object="${group}">
+
+                            <input type="hidden" th:field="*{id}">
+
+                            <div class="form-group">
+                                <label class="col-md-12" th:for="groupName">Name</label>
+                                <div class="col-md-12">
+                                    <input type="text" placeholder="Users" class="form-control form-control-line" th:field="*{groupName}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <button class="btn btn-success">Save</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
                 </div>
             </div>
 
@@ -99,8 +125,8 @@
                             <div class="form-group">
                                 <label class="col-sm-12" th:for="role">Select Role</label>
                                 <div class="col-sm-12">
-                                    <select class="form-control form-control-line" th:field="*{role.id}">
-                                        <option th:each="group : ${groups}" th:value="${group.id}" th:text="${group.groupName}" th:selected="${user.role != null && user.role.id == group.id}"></option>
+                                    <select class="form-control form-control-line" name="role.id">
+                                        <option th:each="item : ${groups}" th:value="${item.id}" th:text="${item.groupName}" th:selected="${item.id == group.id}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -115,6 +141,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- /.container-fluid -->
             <footer class="footer text-center"> 2019 &copy; <span th:text="${author}"></span></footer>
         </div>
