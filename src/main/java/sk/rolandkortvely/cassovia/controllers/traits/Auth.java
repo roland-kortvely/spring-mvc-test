@@ -4,18 +4,17 @@ import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import sk.rolandkortvely.cassovia.models.User;
 import sk.rolandkortvely.cassovia.helpers.Hash;
+import sk.rolandkortvely.cassovia.models.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.List;
 
 public interface Auth {
 
-    default boolean login(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request, User user) {
+    default boolean login(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, User user) {
         if (user.getUsername() == null || user.getPassword() == null) {
             return false;
         }
@@ -23,8 +22,7 @@ public interface Auth {
             return false;
         }
 
-        List<User> users = User.all(sessionFactory);
-        User q = users.stream()
+        User q = User.stream(sessionFactory)
                 .filter(u -> user.getUsername().equals(u.getUsername()))
                 .findFirst()
                 .orElse(null);
@@ -47,10 +45,11 @@ public interface Auth {
         try {
             response.sendRedirect(request.getContextPath() + "/");
         } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown error");
         }
     }
 
-    default User auth(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request) {
+    default User auth(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
 
         String username = (String) session.getAttribute("login");
         if (username == null) {
@@ -68,34 +67,34 @@ public interface Auth {
             return null;
         }
 
-        return User.all(sessionFactory).stream()
+        return User.stream(sessionFactory)
                 .filter(u -> username.equals(u.getUsername()))
                 .filter(u -> Hash.check(u.getPassword(), auth))
                 .findFirst().orElse(null);
     }
 
-    default boolean isLoggedIn(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request) {
-        return auth(sessionFactory, session, request) != null;
+    default boolean isLoggedIn(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
+        return auth(sessionFactory, session) != null;
     }
 
-    default void protect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request) {
-        if (!isLoggedIn(sessionFactory, session, request)) {
+    default void protect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
+        if (!isLoggedIn(sessionFactory, session)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please");
         }
     }
 
-    default void protectAdmin(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request) {
-        if (!isLoggedIn(sessionFactory, session, request)) {
+    default void protectAdmin(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
+        if (!isLoggedIn(sessionFactory, session)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please");
         }
 
-        if (!auth(sessionFactory, session, request).getRole().getGroupName().equals("admin")) {
+        if (!auth(sessionFactory, session).getRole().getGroupName().equals("admin")) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please as admin");
         }
     }
 
     default boolean guestRedirect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
-        if (isLoggedIn(sessionFactory, session, request)) {
+        if (isLoggedIn(sessionFactory, session)) {
 
             try {
                 response.sendRedirect(request.getContextPath() + "/");

@@ -41,7 +41,7 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
 
     @ModelAttribute("guest")
     public boolean guest() {
-        return !isLoggedIn(sessionFactory, session, request);
+        return !isLoggedIn(sessionFactory, session);
     }
 
     @ModelAttribute("admin")
@@ -56,7 +56,7 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
 
     @ModelAttribute("auth")
     public User auth() {
-        return auth(sessionFactory, session, request);
+        return auth(sessionFactory, session);
     }
 
     public void error(String msg) {
@@ -72,7 +72,7 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
     }
 
     public boolean login(User user) {
-        return login(sessionFactory, session, request, user);
+        return login(sessionFactory, session, user);
     }
 
     public void logout(@NotNull HttpServletResponse response) {
@@ -80,7 +80,7 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
     }
 
     public boolean isLoggedIn() {
-        return isLoggedIn(sessionFactory, session, request);
+        return isLoggedIn(sessionFactory, session);
     }
 
     public boolean guestRedirect(@NotNull HttpServletResponse response) {
@@ -88,12 +88,12 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
     }
 
     public void protectAdmin() {
-        protectAdmin(sessionFactory, session, request);
+        protectAdmin(sessionFactory, session);
     }
 
 
     public void protect() {
-        protect(sessionFactory, session, request);
+        protect(sessionFactory, session);
     }
 
     public String getClientIp() {
