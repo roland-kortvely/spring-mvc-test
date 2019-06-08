@@ -1,37 +1,38 @@
 package sk.rolandkortvely.cassovia.controllers;
 
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
-public class ErrorController extends AbstractController implements org.springframework.boot.web.servlet.error.ErrorController {
+public class ErrorsController extends AbstractController implements ErrorController {
 
     @RequestMapping("/error")
     public String errors(HttpServletRequest httpRequest, Model model) {
 
-        String error = "";
+        String error;
 
         switch (getErrorCode(httpRequest)) {
-            case 400: {
-                error = "Http Error Code: 400. Bad Request";
+            case 400:
+                error = "Bad Request";
                 break;
-            }
-            case 401: {
-                error = "Http Error Code: 401. Unauthorized";
+
+            case 401:
+                error = "Unauthorized";
                 break;
-            }
-            case 404: {
-                error = "Http Error Code: 404. Resource not found";
+
+            case 404:
+                error = "Resource not found";
                 break;
-            }
-            case 500: {
-                error = "Http Error Code: 500. Internal Server Error";
+
+            case 500:
+                error = "Internal Server Error";
                 break;
-            }
+            default:
+                error = "Unknown error";
         }
 
         model.addAttribute("error", error);

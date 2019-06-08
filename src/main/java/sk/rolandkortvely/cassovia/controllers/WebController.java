@@ -1,35 +1,84 @@
-package sk.samuelkarabas.cassovia.controllers;
+package sk.rolandkortvely.cassovia.controllers;
 
-import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.WebApplicationContext;
-import sk.samuelkarabas.cassovia.entities.User;
+import org.springframework.web.servlet.HandlerInterceptor;
+import sk.rolandkortvely.cassovia.entities.User;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @Scope(WebApplicationContext.SCOPE_SESSION)
 @RequestMapping("/")
-public class WebController extends AbstractController {
-
-    private final SessionFactory sessionFactory;
-
-    public WebController(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+public class WebController extends AbstractController implements HandlerInterceptor {
 
     @RequestMapping
     public String index(Model model) {
 
-        model.addAttribute("users", User.all(sessionFactory));
 
         return "index";
     }
 
     @RequestMapping("/login")
-    public String login(Model model) {
+    public String login(HttpServletResponse resp, Model model) {
+        if (guestRedirect(resp)) {
+            return "error";
+        }
 
+        model.addAttribute("user", new User());
         return "login";
+    }
+
+    @RequestMapping("/logout")
+    public String log(HttpServletResponse response) {
+        logout(response);
+        return "index";
+    }
+
+    @RequestMapping("/admin")
+    public void admin(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        this.protect();
+
+        response.sendRedirect(request.getContextPath() + "/admin/users");
+    }
+
+    @PostMapping(value = "/auth")
+    public void auth(HttpServletRequest request, HttpServletResponse response, @ModelAttribute User user) throws Exception {
+
+        if (this.isLoggedIn()) {
+            response.sendRedirect(request.getContextPath() + "/admin");
+            return;
+        }
+
+        if (user.getUsername().length() == 0 || user.getPassword().length() == 0) {
+            error("Wrong credentials!");
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        if (!login(user)) {
+            error("Wrong credentials!");
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        response.sendRedirect(request.getContextPath() + "/admin");
+    }
+
+    @RequestMapping("/admin/users")
+    public String users(Model model) {
+
+        this.protect();
+
+        model.addAttribute("users", User.all(sessionFactory));
+
+        return "admin/users";
     }
 }

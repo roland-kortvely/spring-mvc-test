@@ -1,4 +1,4 @@
-package sk.samuelkarabas.cassovia.entities;
+package sk.rolandkortvely.cassovia.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.SessionFactory;
