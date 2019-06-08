@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import sk.rolandkortvely.cassovia.controllers.traits.Auth;
 import sk.rolandkortvely.cassovia.controllers.traits.Session;
-import sk.rolandkortvely.cassovia.entities.User;
+import sk.rolandkortvely.cassovia.models.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +28,11 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
     @ModelAttribute("error")
     public String error() {
         return getError(session);
+    }
+
+    @ModelAttribute("info")
+    public String info() {
+        return getFlash(session, "info");
     }
 
     @ModelAttribute("guest")

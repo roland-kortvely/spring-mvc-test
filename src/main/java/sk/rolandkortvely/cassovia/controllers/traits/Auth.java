@@ -4,7 +4,7 @@ import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import sk.rolandkortvely.cassovia.entities.User;
+import sk.rolandkortvely.cassovia.models.User;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 
 import javax.servlet.http.HttpServletRequest;

@@ -3,7 +3,7 @@ package sk.rolandkortvely.cassovia.services;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import sk.rolandkortvely.cassovia.entities.User;
+import sk.rolandkortvely.cassovia.models.User;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 
 import javax.ws.rs.GET;

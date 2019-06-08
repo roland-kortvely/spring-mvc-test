@@ -1,4 +1,4 @@
-package sk.rolandkortvely.cassovia.entities;
+package sk.rolandkortvely.cassovia.models;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

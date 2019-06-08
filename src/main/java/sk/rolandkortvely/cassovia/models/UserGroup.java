@@ -1,4 +1,4 @@
-package sk.rolandkortvely.cassovia.entities;
+package sk.rolandkortvely.cassovia.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.SessionFactory;
@@ -29,7 +29,7 @@ public class UserGroup extends AbstractModel {
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<User> users;
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 

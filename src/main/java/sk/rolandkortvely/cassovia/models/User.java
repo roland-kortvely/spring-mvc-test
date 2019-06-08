@@ -1,4 +1,4 @@
-package sk.rolandkortvely.cassovia.entities;
+package sk.rolandkortvely.cassovia.models;
 
 import org.hibernate.SessionFactory;
 
@@ -32,7 +32,7 @@ public class User extends AbstractModel {
     @JoinColumn(name = "role", nullable = false)
     private UserGroup role;
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
