@@ -1,14 +1,14 @@
 package sk.rolandkortvely.cassovia.helpers;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 public class Hash {
 
     public static String make(String text) {
-        return DigestUtils.sha256Hex(text);
+        return BCrypt.hashpw(text, BCrypt.gensalt());
     }
 
     public static boolean check(String text, String hash) {
-        return DigestUtils.sha256Hex(text).equals(hash);
+        return BCrypt.checkpw(text, hash);
     }
 }

@@ -14,6 +14,11 @@ public class Services extends ResourceConfig {
         packages("sk.rolandkortvely.cassovia");
     }
 
+    @Bean(name = "testService")
+    public TestService testService() {
+        return new TestService();
+    }
+
     @Bean(name = "userGroupService")
     public UserGroupService userGroupService() {
         return new UserGroupService();

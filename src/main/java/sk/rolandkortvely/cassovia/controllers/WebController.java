@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.HandlerInterceptor;
 import sk.rolandkortvely.cassovia.entities.User;
+import sk.rolandkortvely.cassovia.entities.UserGroup;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,16 +70,46 @@ public class WebController extends AbstractController implements HandlerIntercep
             return;
         }
 
-        response.sendRedirect(request.getContextPath() + "/admin");
+        response.sendRedirect(request.getContextPath() + "/");
     }
 
     @RequestMapping("/admin/users")
     public String users(Model model) {
 
-        this.protect();
+        this.protectAdmin();
 
         model.addAttribute("users", User.all(sessionFactory));
 
         return "admin/users";
+    }
+
+    @RequestMapping("/admin/groups")
+    public String groups(Model model) {
+
+        this.protectAdmin();
+
+        model.addAttribute("groups", UserGroup.all(sessionFactory));
+
+        return "admin/groups";
+    }
+
+    @RequestMapping("/admin/groups/add")
+    public String group_add(Model model) {
+
+        this.protectAdmin();
+
+        model.addAttribute("group", new UserGroup());
+
+        return "admin/groups-add";
+    }
+
+    @RequestMapping("/admin/users/add")
+    public String user_add(Model model) {
+
+        this.protectAdmin();
+
+        model.addAttribute("user", new User());
+
+        return "admin/groups-add";
     }
 }

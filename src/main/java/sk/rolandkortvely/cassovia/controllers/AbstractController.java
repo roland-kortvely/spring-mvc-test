@@ -78,6 +78,11 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
         return guestRedirect(sessionFactory, session, request, response);
     }
 
+    public void protectAdmin() {
+        protectAdmin(sessionFactory, session, request);
+    }
+
+
     public void protect() {
         protect(sessionFactory, session, request);
     }

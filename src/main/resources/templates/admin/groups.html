@@ -63,10 +63,10 @@
         <div class="container-fluid">
             <div class="row bg-title">
                 <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
-                    <h4 class="page-title">Users</h4>
+                    <h4 class="page-title">User Groups</h4>
                 </div>
                 <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
-                    <a href="/admin/users/add"
+                    <a href="/admin/groups/add"
                        class="btn btn-primary pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light">Add</a>
                 </div>
             </div>
@@ -79,19 +79,15 @@
                                 <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
+                                    <th>Name</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
 
-                                <tr th:each="user: ${users}">
-                                    <td th:text="${user.id}"></td>
-                                    <td th:text="${user.username}"></td>
-                                    <td th:text="${user.email}"></td>
-                                    <td th:text="${user.role.groupName}"></td>
+                                <tr th:each="group: ${groups}">
+                                    <td th:text="${group.id}"></td>
+                                    <td th:text="${group.groupName}"></td>
                                     <td></td>
                                 </tr>
 
@@ -108,7 +104,6 @@
 
     </div>
 
-    <script src="https://kit.fontawesome.com/64d00aefba.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
             integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"

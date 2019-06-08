@@ -6,9 +6,10 @@ import org.hibernate.SessionFactory;
 import javax.persistence.*;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Entity
-public class UserGroup extends AbstractModel<UserGroup> {
+public class UserGroup extends AbstractModel {
 
     public UserGroup() {
     }
@@ -58,5 +59,13 @@ public class UserGroup extends AbstractModel<UserGroup> {
 
     public static List<UserGroup> all(SessionFactory sessionFactory) {
         return all(UserGroup.class, sessionFactory);
+    }
+
+    public static UserGroup first(SessionFactory sessionFactory) {
+        return first(UserGroup.class, sessionFactory);
+    }
+
+    public static Stream<UserGroup> stream(SessionFactory sessionFactory) {
+        return stream(UserGroup.class, sessionFactory);
     }
 }

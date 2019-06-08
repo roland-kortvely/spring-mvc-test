@@ -4,9 +4,10 @@ import org.hibernate.SessionFactory;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Entity
-public class User extends AbstractModel<User> {
+public class User extends AbstractModel {
 
     public User() {
     }
@@ -24,6 +25,8 @@ public class User extends AbstractModel<User> {
     private String password;
 
     private String email;
+
+    private String token;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role", nullable = false)
@@ -61,6 +64,14 @@ public class User extends AbstractModel<User> {
         this.email = email;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public UserGroup getRole() {
         return role;
     }
@@ -75,5 +86,13 @@ public class User extends AbstractModel<User> {
 
     public static List<User> all(SessionFactory sessionFactory) {
         return all(User.class, sessionFactory);
+    }
+
+    public static User first(SessionFactory sessionFactory) {
+        return first(User.class, sessionFactory);
+    }
+
+    public static Stream<User> stream(SessionFactory sessionFactory) {
+        return stream(User.class, sessionFactory);
     }
 }

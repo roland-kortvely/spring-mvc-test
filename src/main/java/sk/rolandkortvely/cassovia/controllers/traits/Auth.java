@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import sk.rolandkortvely.cassovia.entities.User;
-import sk.rolandkortvely.cassovia.helpers.Crypto;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,14 +26,19 @@ public interface Auth {
         List<User> users = User.all(sessionFactory);
         User q = users.stream()
                 .filter(u -> user.getUsername().equals(u.getUsername()))
-                .filter(u -> Hash.make(user.getPassword()).equals(u.getPassword()))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
 
         if (q == null) {
             return false;
         }
 
-        session.setAttribute("auth", Crypto.encrypt(q.getPassword(), getClientIp(request)));
+        if (!Hash.check(user.getPassword(), q.getPassword())) {
+            return false;
+        }
+
+        session.setAttribute("login", q.getUsername());
+        session.setAttribute("auth", Hash.make(q.getPassword()));
         return true;
     }
 
@@ -43,11 +47,18 @@ public interface Auth {
         try {
             response.sendRedirect(request.getContextPath() + "/");
         } catch (IOException e) {
-            return;
         }
     }
 
     default User auth(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request) {
+
+        String username = (String) session.getAttribute("login");
+        if (username == null) {
+            return null;
+        }
+        if (username.length() == 0) {
+            return null;
+        }
 
         String auth = (String) session.getAttribute("auth");
         if (auth == null) {
@@ -57,13 +68,9 @@ public interface Auth {
             return null;
         }
 
-        String hash = Crypto.decrypt(auth, getClientIp(request));
-        if (hash == null) {
-            return null;
-        }
-
         return User.all(sessionFactory).stream()
-                .filter(u -> hash.equals(u.getPassword()))
+                .filter(u -> username.equals(u.getUsername()))
+                .filter(u -> Hash.check(u.getPassword(), auth))
                 .findFirst().orElse(null);
     }
 
@@ -74,6 +81,16 @@ public interface Auth {
     default void protect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request) {
         if (!isLoggedIn(sessionFactory, session, request)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please");
+        }
+    }
+
+    default void protectAdmin(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request) {
+        if (!isLoggedIn(sessionFactory, session, request)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please");
+        }
+
+        if (!auth(sessionFactory, session, request).getRole().getGroupName().equals("admin")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please as admin");
         }
     }
 
