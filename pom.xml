@@ -8,7 +8,7 @@
         <version>2.1.5.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>sk.samuelkarabas</groupId>
+    <groupId>sk.rolandkortvely</groupId>
     <artifactId>cassovia</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>cassovia</name>
@@ -92,6 +92,17 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.8.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.11</version>
         </dependency>
     </dependencies>
 

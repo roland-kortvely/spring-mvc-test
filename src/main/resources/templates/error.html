@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" th:content="${author}">
+
+    <title>Error</title>
+    <!-- Bootstrap Core CSS -->
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- animation CSS -->
+    <link href="/css/animate.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css" rel="stylesheet">
+    <!-- color CSS -->
+    <link href="/css/colors/default.css" id="theme" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<!-- Preloader -->
+<section id="wrapper" class="error-page">
+    <div class="error-box">
+        <div class="error-body text-center">
+            <h1 class="text-danger" th:text="${code}">404</h1>
+            <h3 class="text-uppercase" th:text="${error}">Page Not Found !</h3>
+            <p class="text-muted m-t-30 m-b-30">YOU SEEM TO BE TRYING TO FIND A WAY HOME</p>
+            <a href="/" class="btn btn-danger btn-rounded waves-effect waves-light m-b-40">Back to home</a> </div>
+        <footer class="footer text-center">2019 © <span th:text="${author}"></span></footer>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
