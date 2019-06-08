@@ -14,28 +14,60 @@ import java.util.stream.Stream;
 
 public abstract class AbstractModel {
 
+    /**
+     * Database context (MySQL)
+     * DI does not work in new instances, we cannot use @Autowired
+     */
     private SessionFactory sessionFactory;
 
+    /**
+     * @param <ReturnType> Anything we want to return from database
+     */
     @FunctionalInterface
-    public interface SessionTransaction<T> {
-        T commit(Session session);
+    public interface SessionTransaction<ReturnType> {
+        ReturnType commit(Session session);
     }
 
+    /**
+     * @param <ReturnType> Anything we want to return from database
+     */
     @FunctionalInterface
-    public interface QueryTransaction<T, E> {
-        T commit(Session session, Query<E> query);
+    public interface QueryTransaction<ReturnType, Model> {
+        ReturnType commit(Session session, Query<Model> query);
     }
 
-    public AbstractModel() {
+    /**
+     * For new empty Models, created by Query
+     */
+    AbstractModel() {
     }
 
-    public AbstractModel(SessionFactory sessionFactory) {
+    /**
+     * DI does not work in new instances
+     *
+     * @param sessionFactory Database context (MySQL)
+     */
+    AbstractModel(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
-    protected static <T extends AbstractModel> T find(Class<T> tClass, SessionFactory sessionFactory, Integer id) {
-        T result = transaction(session -> tClass.cast(session.get(tClass, id)), sessionFactory);
-        result.setSessionFactory(sessionFactory);
+    /**
+     * Find Model by ID
+     *
+     * @param modelClass     Class of the model we want to find
+     * @param sessionFactory Database context (MySQL)
+     * @param id             Integer ID of Model we want to find
+     * @param <Model>        Any model extending AbstractModel
+     * @return model we found in database
+     */
+    protected static <Model extends AbstractModel> Model find(Class<Model> modelClass, SessionFactory sessionFactory, Integer id) {
+        Model result = transaction(session -> modelClass.cast(session.get(modelClass, id)), sessionFactory);
+
+        //Set back sessionFactory to newly created user, we want to be able to delete him or update, ..
+        if (result != null) {
+            result.setSessionFactory(sessionFactory);
+        }
+
         return result;
     }
 
@@ -53,19 +85,20 @@ public abstract class AbstractModel {
         }, sessionFactory);
     }
 
-    protected static <T extends AbstractModel> List<T> all(Class<T> tClass, SessionFactory sessionFactory) {
+    protected static <Model extends AbstractModel> List<Model> all(Class<Model> modelClass, SessionFactory sessionFactory) {
 
-        List<T> result = query((session, query) -> query.getResultList(),tClass, sessionFactory);
+        List<Model> result = query((session, query) -> query.getResultList(), modelClass, sessionFactory);
 
-        result.forEach(t -> t.setSessionFactory(sessionFactory));
+        result.forEach(Model -> Model.setSessionFactory(sessionFactory));
 
         return result;
     }
 
-    protected static <T extends AbstractModel> T first(Class<T> tClass, SessionFactory sessionFactory) {
+    protected static <Model extends AbstractModel> Model first(Class<Model> modelClass, SessionFactory sessionFactory) {
 
-        T result = query((session, query) -> query.getResultList().stream().findFirst().orElse(null), tClass, sessionFactory);
+        Model result = query((session, query) -> query.getResultList().stream().findFirst().orElse(null), modelClass, sessionFactory);
 
+        //Set back sessionFactory to newly created user, we want to be able to delete him or update, ..
         if (result != null) {
             result.setSessionFactory(sessionFactory);
         }
@@ -73,33 +106,39 @@ public abstract class AbstractModel {
         return result;
     }
 
-    protected static <T extends AbstractModel> Stream<T> stream(Class<T> tClass, SessionFactory sessionFactory) {
-        return query((session, query) -> query.getResultList().stream(), tClass, sessionFactory);
+    protected static <Model extends AbstractModel> Stream<Model> stream(Class<Model> modelClass, SessionFactory sessionFactory) {
+        return query((session, query) -> query.getResultList().stream(), modelClass, sessionFactory);
     }
 
-    private static <T,E> T query(QueryTransaction<T,E> queryTransaction, Class<E> tClass, SessionFactory sessionFactory) {
+    private static <ReturnType, Model> ReturnType query(QueryTransaction<ReturnType, Model> queryTransaction, Class<Model> modelClass, SessionFactory sessionFactory) {
         return transaction(session -> {
             CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<E> cq = cb.createQuery(tClass);
-            Root<E> root = cq.from(tClass);
+            CriteriaQuery<Model> cq = cb.createQuery(modelClass);
+            Root<Model> root = cq.from(modelClass);
             cq.select(root);
             return queryTransaction.commit(session, session.createQuery(cq));
         }, sessionFactory);
     }
 
-    private static <T> T transaction(SessionTransaction<T> sessionTransaction, @NotNull SessionFactory sessionFactory) {
+    /**
+     * @param sessionTransaction Functional Interface
+     * @param sessionFactory Database context (MySQL)
+     * @param <ReturnType> Type of what we want to return from the database
+     * @return Anything we want to return from database
+     */
+    private static <ReturnType> ReturnType transaction(SessionTransaction<ReturnType> sessionTransaction, @NotNull SessionFactory sessionFactory) {
         Session session = sessionFactory.openSession();
         Transaction tx = null;
 
-        T result = null;
+        ReturnType result = null;
 
         try {
             tx = session.beginTransaction();
             result = sessionTransaction.commit(session);
             tx.commit();
-        } catch (Exception e) {
+        } catch (Exception ReturnType) {
             if (tx != null) tx.rollback();
-            e.printStackTrace();
+            ReturnType.printStackTrace();
         } finally {
             session.close();
         }

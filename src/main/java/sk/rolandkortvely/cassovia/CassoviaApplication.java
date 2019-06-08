@@ -9,14 +9,26 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
+/**
+ * Server application for CRUD management of given resources
+ */
 @SpringBootApplication
 @Configuration
 public class CassoviaApplication {
 
+    /**
+     * Run Server
+     * To fill the database with default data, go to /api/install
+     * @param args app arguments
+     */
     public static void main(String[] args) {
         SpringApplication.run(CassoviaApplication.class, args);
     }
 
+    /**
+     * SMTP username, pass and port... to send emails
+     * @return new instance of JavaMailSender
+     */
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

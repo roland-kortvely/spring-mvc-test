@@ -14,6 +14,13 @@ import java.io.IOException;
 
 public interface Auth {
 
+    /**
+     * Login user
+     * @param sessionFactory database context (MySQL)
+     * @param session session context (in browser)
+     * @param user POST data from form
+     * @return true if user is authorized
+     */
     default boolean login(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, User user) {
         if (user.getUsername() == null || user.getPassword() == null) {
             return false;
@@ -40,7 +47,14 @@ public interface Auth {
         return true;
     }
 
+    /**
+     * Logout authenticated user and redirect him to homepage
+     * @param session session context (in browser)
+     * @param request Client Request
+     * @param response Server Response to Client request
+     */
     default void logout(@NotNull HttpSession session, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
+        session.removeAttribute("login");
         session.removeAttribute("auth");
         try {
             response.sendRedirect(request.getContextPath() + "/");
@@ -49,6 +63,11 @@ public interface Auth {
         }
     }
 
+    /**
+     * @param sessionFactory database context (MySQL)
+     * @param session session context (in browser)
+     * @return authenticated user
+     */
     default User auth(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
 
         String username = (String) session.getAttribute("login");
@@ -67,35 +86,58 @@ public interface Auth {
             return null;
         }
 
+        /*
+         * find authenticated user in database, based on session hashed password and username
+         */
         return User.stream(sessionFactory)
                 .filter(u -> username.equals(u.getUsername()))
                 .filter(u -> Hash.check(u.getPassword(), auth))
                 .findFirst().orElse(null);
     }
 
+    /**
+     * @param sessionFactory database context (MySQL)
+     * @param session session context (in browser)
+     * @return true if there is an authenticated user
+     */
     default boolean isLoggedIn(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
         return auth(sessionFactory, session) != null;
     }
 
+    /**
+     * Throw an Exception when user is not authorized to access the given view
+     * @param sessionFactory database context (MySQL)
+     * @param session session context (in browser)
+     */
     default void protect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
         if (!isLoggedIn(sessionFactory, session)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please");
         }
     }
 
+    /**
+     * Throw an Exception when user is not authorized to access the given view, user must be Admin
+     * @param sessionFactory database context (MySQL)
+     * @param session session context (in browser)
+     */
     default void protectAdmin(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
-        if (!isLoggedIn(sessionFactory, session)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please");
-        }
+        this.protect(sessionFactory, session);
 
         if (!auth(sessionFactory, session).getRole().getGroupName().equals("admin")) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please as admin");
         }
     }
 
-    default boolean guestRedirect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
+    /**
+     * Redirect authenticated users to homepage
+     * @param sessionFactory database context (MySQL)
+     * @param session session context (in browser)
+     * @param request Client Request
+     * @param response Server Response to Client request
+     * @return true if client should be redirected to homepage
+     */
+    default boolean authenticatedRedirect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
         if (isLoggedIn(sessionFactory, session)) {
-
             try {
                 response.sendRedirect(request.getContextPath() + "/");
             } catch (IOException e) {
@@ -103,9 +145,15 @@ public interface Auth {
             }
             return true;
         }
+
         return false;
     }
 
+    /**
+     * Client IP address
+     * @param request Client Request
+     * @return client IP address
+     */
     default String getClientIp(@NotNull HttpServletRequest request) {
         String remoteAddr = request.getHeader("X-FORWARDED-FOR");
         if (remoteAddr == null || "".equals(remoteAddr)) {

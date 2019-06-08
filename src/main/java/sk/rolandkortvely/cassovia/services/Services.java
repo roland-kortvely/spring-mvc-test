@@ -14,9 +14,18 @@ public class Services extends ResourceConfig {
         packages("sk.rolandkortvely.cassovia");
     }
 
-    @Bean(name = "testService")
-    public TestService testService() {
-        return new TestService();
+    /**
+     * Comment after successful installation
+     * @return Service for default installation
+     */
+    @Bean(name = "installService")
+    public InstallService installService() {
+        return new InstallService();
+    }
+
+    @Bean(name = "cryptoService")
+    public CryptoService cryptoService() {
+        return new CryptoService();
     }
 
     @Bean(name = "userGroupService")

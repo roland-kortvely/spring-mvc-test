@@ -17,33 +17,57 @@ import javax.servlet.http.HttpSession;
 @Controller
 public abstract class AbstractController extends Attributes implements Auth, Session {
 
+    /**
+     * Database context (MySQL)
+     */
     @Autowired
     protected SessionFactory sessionFactory;
 
+    /**
+     * Session context (in browser)
+     */
     @Autowired
     protected HttpSession session;
 
+    /**
+     * Client Request to Server
+     */
     @Autowired
     protected HttpServletRequest request;
 
+    /**
+     * Instance of Mail, connection to SMTP server to send emails
+     */
     @Autowired
     public JavaMailSender emailSender;
 
+    /**
+     * @return provide error message, if exists to Thymeleaf (DANGER.. red color..)
+     */
     @ModelAttribute("error")
     public String error() {
         return getError(session);
     }
 
+    /**
+     * @return provide info message, if exists to Thymeleaf (INFO.. blue color..)
+     */
     @ModelAttribute("info")
     public String info() {
         return getFlash(session, "info");
     }
 
+    /**
+     * @return true or false, whether user is authenticated, for Thymeleaf..
+     */
     @ModelAttribute("guest")
     public boolean guest() {
         return !isLoggedIn(sessionFactory, session);
     }
 
+    /**
+     * @return true or false, whether authenticated user is an admin, for Thymeleaf..
+     */
     @ModelAttribute("admin")
     public boolean admin() {
 
@@ -51,13 +75,20 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
             return false;
         }
 
-        return auth().getRole().getGroupName().equals("admin");
+        return auth()
+                .getRole()
+                .getGroupName().equals("admin");
     }
 
+    /**
+     * @return User instance of authenticated user, for Thymeleaf
+     */
     @ModelAttribute("auth")
     public User auth() {
         return auth(sessionFactory, session);
     }
+
+    //NOTHING IMPORTANT BELOW.. JUST A REFLECTION
 
     public void error(String msg) {
         error(session, msg);
@@ -83,14 +114,13 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
         return isLoggedIn(sessionFactory, session);
     }
 
-    public boolean guestRedirect(@NotNull HttpServletResponse response) {
-        return guestRedirect(sessionFactory, session, request, response);
+    public boolean authenticatedRedirect(@NotNull HttpServletResponse response) {
+        return authenticatedRedirect(sessionFactory, session, request, response);
     }
 
     public void protectAdmin() {
         protectAdmin(sessionFactory, session);
     }
-
 
     public void protect() {
         protect(sessionFactory, session);

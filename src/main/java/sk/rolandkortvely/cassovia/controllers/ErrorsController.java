@@ -28,6 +28,10 @@ public class ErrorsController extends AbstractController implements ErrorControl
                 error = "Resource not found";
                 break;
 
+            case 405:
+                error = "Method not allowed";
+                break;
+
             case 500:
                 error = "Internal Server Error";
                 break;
