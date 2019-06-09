@@ -8,6 +8,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.commons.io.IOUtils;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.server.ResponseStatusException;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 import sk.rolandkortvely.cassovia.models.User;
 import sk.rolandkortvely.cassovia.models.UserGroup;
@@ -27,6 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Stream;
 
+/**
+ * Main Web Controller
+ */
 @Controller
 @Scope(WebApplicationContext.SCOPE_SESSION)
 @RequestMapping("/")
@@ -65,24 +70,23 @@ public class WebController extends AbstractController {
      *
      * @param response Server Response to Client request
      * @param user     POST data from form
-     * @throws Exception ..
      */
     @PostMapping(value = "/auth")
-    public void auth(HttpServletResponse response, @ModelAttribute User user) throws Exception {
+    public void auth(HttpServletResponse response, @ModelAttribute User user) {
 
         //Redirect authenticated users to homepage
         if (authenticatedRedirect(response)) {
             return;
         }
 
-        if (!this.login(user)) {
+        if (!login(user)) {
             error("Wrong credentials!");
-            response.sendRedirect(request.getContextPath() + "/login");
+            redirect(response, "/login");
             return;
         }
 
         //redirect client to homepage
-        response.sendRedirect(request.getContextPath() + "/");
+        redirect(response, "/");
     }
 
     /**
@@ -91,9 +95,9 @@ public class WebController extends AbstractController {
      * @param response Server Response to Client request
      */
     @RequestMapping("/logout")
-    public String _logout(HttpServletResponse response) {
-        logout(response);
-        return "index";
+    public void _logout(HttpServletResponse response) {
+        logout();
+        redirect(response, "/");
     }
 
     /**
@@ -102,10 +106,12 @@ public class WebController extends AbstractController {
      * @param response Server Response to Client request
      */
     @RequestMapping("/admin")
-    public void admin(HttpServletResponse response) throws Exception {
-        this.protectAdmin();
-        response.sendRedirect(request.getContextPath() + "/admin/users");
+    public void admin(HttpServletResponse response) {
+        protectAdmin();
+        redirect(response, "/admin/users");
     }
+
+    /* User Resource */
 
     /**
      * List of Users
@@ -115,7 +121,7 @@ public class WebController extends AbstractController {
      */
     @RequestMapping("/admin/users")
     public String users(Model model) {
-        this.protectAdmin();
+        protectAdmin();
 
         model.addAttribute("user", new User()); //Because we want to be able to delete users
         model.addAttribute("users", User.all(sessionFactory)); //List of all users
@@ -131,7 +137,7 @@ public class WebController extends AbstractController {
      */
     @RequestMapping("/admin/users/create")
     public String users_create(Model model) {
-        this.protectAdmin();
+        protectAdmin();
 
         model.addAttribute("user", new User());  //Because we want to be able to create a new user
         model.addAttribute("groups", UserGroup.all(sessionFactory)); //Because we want to be able to assign a role to newly created user
@@ -150,12 +156,12 @@ public class WebController extends AbstractController {
      */
     @RequestMapping("/admin/users/{id}")
     public String users_edit(HttpServletResponse response, Model model, @PathVariable Integer id) throws Exception {
-        this.protectAdmin();
+        protectAdmin();
 
         User user = User.find(sessionFactory, id);
         if (user == null) {
             error("User not found!");
-            response.sendRedirect(request.getContextPath() + "/admin/users");
+            redirect(response, "/admin/users");
             return "admin/users/index";
         }
 
@@ -170,28 +176,27 @@ public class WebController extends AbstractController {
      *
      * @param response Server Response to Client request
      * @param data     POST data from form
-     * @throws Exception ..
      */
     @PostMapping("/admin/users/delete")
-    public void users_delete(HttpServletResponse response, @ModelAttribute User data) throws Exception {
-        this.protectAdmin();
+    public void users_delete(HttpServletResponse response, @ModelAttribute User data) {
+        protectAdmin();
 
         if (data.getId() == 0) {
             error("Unknown user");
-            response.sendRedirect(request.getContextPath() + "/admin/users");
+            redirect(response, "/admin/users");
             return;
         }
 
         if (auth().getId() == data.getId()) {
             error("You cannot delete yourself");
-            response.sendRedirect(request.getContextPath() + "/admin/users");
+            redirect(response, "/admin/users");
             return;
         }
 
         User user = User.find(sessionFactory, data.getId());
         if (user == null) {
             error("User not found!");
-            response.sendRedirect(request.getContextPath() + "/admin/users");
+            redirect(response, "/admin/users");
             return;
         }
 
@@ -199,7 +204,7 @@ public class WebController extends AbstractController {
 
         flash("info", "User deleted!");
 
-        response.sendRedirect(request.getContextPath() + "/admin/users");
+        redirect(response, "/admin/users");
     }
 
     /**
@@ -207,11 +212,10 @@ public class WebController extends AbstractController {
      *
      * @param response Server Response to Client request
      * @param data     POST data from form
-     * @throws Exception ..
      */
     @PostMapping("/admin/users/store")
-    public void users_store(HttpServletResponse response, @ModelAttribute User data) throws Exception {
-        this.protectAdmin();
+    public void users_store(HttpServletResponse response, @ModelAttribute User data) {
+        protectAdmin();
 
         /*
          * Data validation
@@ -220,7 +224,7 @@ public class WebController extends AbstractController {
         UserGroup group = UserGroup.find(sessionFactory, data.getRole().getId());
         if (group == null) {
             error("Unknown role selected");
-            response.sendRedirect(request.getContextPath() + "/admin/users");
+            redirect(response, "/admin/users");
             return;
         }
 
@@ -234,7 +238,7 @@ public class WebController extends AbstractController {
                 .findFirst().orElse(null) != null
         ) {
             error("Username already in use!");
-            response.sendRedirect(request.getContextPath() + "/admin/users");
+            redirect(response, "/admin/users");
             return;
         }
 
@@ -247,7 +251,7 @@ public class WebController extends AbstractController {
             user = User.find(sessionFactory, data.getId());
             if (user == null) {
                 error("User not found!");
-                response.sendRedirect(request.getContextPath() + "/admin/users");
+                redirect(response, "/admin/users");
                 return;
             }
 
@@ -276,22 +280,26 @@ public class WebController extends AbstractController {
 
         user.save(); //Store in database
 
-        response.sendRedirect(request.getContextPath() + "/admin/users");
+        redirect(response, "/admin/users");
     }
 
     /**
      * Generate PDF from User list
      *
      * @param response Server Response to Client request
-     * @throws Exception ..
      */
     @RequestMapping("/admin/users/export")
-    public void users_export(HttpServletResponse response) throws Exception {
-        this.protectAdmin();
+    public void users_export(HttpServletResponse response) {
+        protectAdmin();
 
         //Create new empty PDF
         Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream("users.pdf")); //Save PDF to users.pdf
+
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream("users.pdf")); //Save PDF to users.pdf
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Unknown error");
+        }
 
         document.open();
 
@@ -305,7 +313,12 @@ public class WebController extends AbstractController {
                     cell.setPhrase(new Phrase(title));
                     table.addCell(cell);
                 });
-        document.add(table);
+
+        try {
+            document.add(table);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Unknown error");
+        }
 
         //Save each user to table row
         User.all(sessionFactory).forEach(user -> {
@@ -348,7 +361,7 @@ public class WebController extends AbstractController {
         }
     }
 
-    //ONCE AGAIN, ABSOLUTELY SAME, BUT TOTALLY DIFFERENT
+    /* UserGroup Resource */
 
     /**
      * List of User Groups
@@ -359,7 +372,7 @@ public class WebController extends AbstractController {
     @RequestMapping("/admin/groups")
     public String groups(Model model) {
 
-        this.protectAdmin();
+        protectAdmin();
 
         model.addAttribute("group", new UserGroup());
         model.addAttribute("groups", UserGroup.all(sessionFactory));
@@ -375,7 +388,7 @@ public class WebController extends AbstractController {
      */
     @RequestMapping("/admin/groups/create")
     public String groups_create(Model model) {
-        this.protectAdmin();
+        protectAdmin();
 
         model.addAttribute("user", new User());
         model.addAttribute("group", new UserGroup());
@@ -384,14 +397,22 @@ public class WebController extends AbstractController {
         return "admin/groups/create";
     }
 
+    /**
+     * Edit Group
+     *
+     * @param response Server Response to Client request
+     * @param model    Instance of empty object for Thymeleaf, you fill model with data you want to share with View
+     * @param id       User Group ID we are going to edit
+     * @return Thymeleaf View, form to edit an existing user group
+     */
     @RequestMapping("/admin/groups/{id}")
-    public String groups_edit(HttpServletResponse response, Model model, @PathVariable Integer id) throws Exception {
-        this.protectAdmin();
+    public String groups_edit(HttpServletResponse response, Model model, @PathVariable Integer id) {
+        protectAdmin();
 
         UserGroup group = UserGroup.find(sessionFactory, id);
         if (group == null) {
             error("Group not found!");
-            response.sendRedirect(request.getContextPath() + "/admin/groups");
+            redirect(response, "/admin/groups");
             return "admin/groups/index";
         }
 
@@ -402,26 +423,32 @@ public class WebController extends AbstractController {
         return "admin/groups/create";
     }
 
+    /**
+     * Delete User Group
+     *
+     * @param response Server Response to Client request
+     * @param data     POST data from form
+     */
     @PostMapping("/admin/groups/delete")
-    public void groups_delete(HttpServletResponse response, @ModelAttribute UserGroup data) throws Exception {
-        this.protectAdmin();
+    public void groups_delete(HttpServletResponse response, @ModelAttribute UserGroup data) {
+        protectAdmin();
 
         if (data.getId() == 0) {
             error("Unknown group");
-            response.sendRedirect(request.getContextPath() + "/admin/groups");
+            redirect(response, "/admin/groups");
             return;
         }
 
         UserGroup group = UserGroup.find(sessionFactory, data.getId());
         if (group == null) {
             error("Group not found!");
-            response.sendRedirect(request.getContextPath() + "/admin/groups");
+            redirect(response, "/admin/groups");
             return;
         }
 
         if (group.getGroupName().equals("admin")) {
             error("You cannot delete admin group!");
-            response.sendRedirect(request.getContextPath() + "/admin/groups");
+            redirect(response, "/admin/groups");
             return;
         }
 
@@ -429,12 +456,18 @@ public class WebController extends AbstractController {
 
         flash("info", "Group deleted!");
 
-        response.sendRedirect(request.getContextPath() + "/admin/groups");
+        redirect(response, "/admin/groups");
     }
 
+    /**
+     * Store User Group in database
+     *
+     * @param response Server Response to Client request
+     * @param data     POST data from form
+     */
     @PostMapping("/admin/groups/store")
-    public void groups_store(HttpServletResponse response, @ModelAttribute UserGroup data) throws Exception {
-        this.protectAdmin();
+    public void groups_store(HttpServletResponse response, @ModelAttribute UserGroup data) {
+        protectAdmin();
 
         UserGroup group;
 
@@ -442,7 +475,7 @@ public class WebController extends AbstractController {
             group = UserGroup.find(sessionFactory, data.getId());
             if (group == null) {
                 error("Group not found!");
-                response.sendRedirect(request.getContextPath() + "/admin/groups");
+                redirect(response, "/admin/groups");
                 return;
             }
 
@@ -456,6 +489,6 @@ public class WebController extends AbstractController {
 
         group.save();
 
-        response.sendRedirect(request.getContextPath() + "/admin/groups");
+        redirect(response, "/admin/groups");
     }
 }

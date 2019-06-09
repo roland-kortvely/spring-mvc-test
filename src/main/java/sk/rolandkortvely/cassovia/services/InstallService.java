@@ -1,7 +1,5 @@
 package sk.rolandkortvely.cassovia.services;
 
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 import sk.rolandkortvely.cassovia.models.User;
@@ -15,13 +13,7 @@ import javax.ws.rs.Produces;
  * Fill the database with default UserGroup and User
  */
 @Path("/install")
-public class InstallService {
-
-    /**
-     * Database context (MySQL)
-     */
-    @Autowired
-    private SessionFactory sessionFactory;
+public class InstallService extends AbstractService {
 
     /**
      * Fill the database with default UserGroup and User

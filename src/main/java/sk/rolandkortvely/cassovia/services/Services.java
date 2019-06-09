@@ -16,6 +16,7 @@ public class Services extends ResourceConfig {
 
     /**
      * Comment after successful installation
+     *
      * @return Service for default installation
      */
     @Bean(name = "installService")

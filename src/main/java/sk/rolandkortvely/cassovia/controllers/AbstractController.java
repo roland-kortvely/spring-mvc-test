@@ -3,20 +3,29 @@ package sk.rolandkortvely.cassovia.controllers;
 import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import sk.rolandkortvely.cassovia.controllers.traits.Auth;
-import sk.rolandkortvely.cassovia.controllers.traits.Session;
+import org.springframework.web.server.ResponseStatusException;
 import sk.rolandkortvely.cassovia.models.User;
+import sk.rolandkortvely.cassovia.traits.Auth;
+import sk.rolandkortvely.cassovia.traits.Session;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 @Controller
 public abstract class AbstractController extends Attributes implements Auth, Session {
 
+    /**
+     * Instance of Mail, connection to SMTP server to send emails
+     */
+    @Autowired
+    public JavaMailSender emailSender;
     /**
      * Database context (MySQL)
      */
@@ -34,12 +43,11 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
      */
     @Autowired
     protected HttpServletRequest request;
-
     /**
-     * Instance of Mail, connection to SMTP server to send emails
+     * Environment config
      */
     @Autowired
-    public JavaMailSender emailSender;
+    private Environment env;
 
     /**
      * @return provide error message, if exists to Thymeleaf (DANGER.. red color..)
@@ -88,7 +96,18 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
         return auth(sessionFactory, session);
     }
 
-    //NOTHING IMPORTANT BELOW.. JUST A REFLECTION
+    /* NOTHING IMPORTANT BELOW.. JUST A REFLECTION */
+
+    public void redirect(@NotNull HttpServletResponse response, String uri) {
+        try {
+            response.sendRedirect(request.getContextPath() + uri);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown error");
+        }
+    }
+
+
+    /* Session Trait */
 
     public void error(String msg) {
         error(session, msg);
@@ -102,12 +121,14 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
         flash(session, key, msg);
     }
 
-    public boolean login(User user) {
-        return login(sessionFactory, session, user);
+    /* Auth Trait */
+
+    public void logout() {
+        logout(session);
     }
 
-    public void logout(@NotNull HttpServletResponse response) {
-        logout(session, request, response);
+    public boolean login(User user) {
+        return login(sessionFactory, session, user);
     }
 
     public boolean isLoggedIn() {
@@ -124,9 +145,5 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
 
     public void protect() {
         protect(sessionFactory, session);
-    }
-
-    public String getClientIp() {
-        return getClientIp(request);
     }
 }

@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
 import java.util.List;
 
 @Path("/user")
-public class UserService {
+public class UserService extends AbstractService {
 
     @Autowired
     private SessionFactory sessionFactory;

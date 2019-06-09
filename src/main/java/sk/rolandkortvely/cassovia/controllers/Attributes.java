@@ -3,6 +3,9 @@ package sk.rolandkortvely.cassovia.controllers;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+/**
+ * Additional attributes for Thymeleaf
+ */
 @Controller
 public class Attributes {
 

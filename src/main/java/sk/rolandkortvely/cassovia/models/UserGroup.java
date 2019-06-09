@@ -11,6 +11,15 @@ import java.util.stream.Stream;
 @Entity
 public class UserGroup extends AbstractModel {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private int id;
+    private String groupName;
+    @JsonIgnore
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<User> users;
+
     public UserGroup() {
     }
 
@@ -18,16 +27,21 @@ public class UserGroup extends AbstractModel {
         super(sessionFactory);
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private int id;
+    public static UserGroup find(SessionFactory sessionFactory, Integer id) {
+        return find(UserGroup.class, sessionFactory, id);
+    }
 
-    private String groupName;
+    public static List<UserGroup> all(SessionFactory sessionFactory) {
+        return all(UserGroup.class, sessionFactory);
+    }
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<User> users;
+    public static UserGroup first(SessionFactory sessionFactory) {
+        return first(UserGroup.class, sessionFactory);
+    }
+
+    public static Stream<UserGroup> stream(SessionFactory sessionFactory) {
+        return stream(UserGroup.class, sessionFactory);
+    }
 
     public int getId() {
         return id;
@@ -51,21 +65,5 @@ public class UserGroup extends AbstractModel {
 
     public void setUsers(Set<User> users) {
         this.users = users;
-    }
-
-    public static UserGroup find(SessionFactory sessionFactory, Integer id) {
-        return find(UserGroup.class, sessionFactory, id);
-    }
-
-    public static List<UserGroup> all(SessionFactory sessionFactory) {
-        return all(UserGroup.class, sessionFactory);
-    }
-
-    public static UserGroup first(SessionFactory sessionFactory) {
-        return first(UserGroup.class, sessionFactory);
-    }
-
-    public static Stream<UserGroup> stream(SessionFactory sessionFactory) {
-        return stream(UserGroup.class, sessionFactory);
     }
 }

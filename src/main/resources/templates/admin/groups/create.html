@@ -2,8 +2,8 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta name="author" th:content="${author}">
 
     <title th:text="${title}"></title>
@@ -12,13 +12,14 @@
     <link href="/css/animate.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
     <link href="/css/colors/default.css" id="theme" rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+          integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" rel="stylesheet">
 </head>
 
 <body class="fix-header">
 <div class="preloader">
     <svg class="circular" viewBox="25 25 50 50">
-        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+        <circle class="path" cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="2"/>
     </svg>
 </div>
 
@@ -50,10 +51,11 @@
             </div>
             <ul class="nav" id="side-menu">
                 <li style="padding: 70px 0 0;">
-                    <a href="/admin/users" class="waves-effect"><i class="fa fa-user fa-fw" aria-hidden="true"></i>Users</a>
+                    <a class="waves-effect" href="/admin/users"><i aria-hidden="true" class="fa fa-user fa-fw"></i>Users</a>
                 </li>
                 <li>
-                    <a href="/admin/groups" class="waves-effect"><i class="fa fa-address-book fa-fw" aria-hidden="true"></i>Groups</a>
+                    <a class="waves-effect" href="/admin/groups"><i aria-hidden="true"
+                                                                    class="fa fa-address-book fa-fw"></i>Groups</a>
                 </li>
             </ul>
         </div>
@@ -71,14 +73,16 @@
                 <div class="col-md-12">
                     <div class="white-box">
 
-                        <form class="form-horizontal form-material" method="post" th:action="@{/admin/groups/store}" th:object="${group}">
+                        <form class="form-horizontal form-material" method="post" th:action="@{/admin/groups/store}"
+                              th:object="${group}">
 
-                            <input type="hidden" th:field="*{id}">
+                            <input th:field="*{id}" type="hidden">
 
                             <div class="form-group">
                                 <label class="col-md-12" th:for="groupName">Name</label>
                                 <div class="col-md-12">
-                                    <input type="text" placeholder="Users" class="form-control form-control-line" th:field="*{groupName}">
+                                    <input class="form-control form-control-line" placeholder="Users" th:field="*{groupName}"
+                                           type="text">
                                 </div>
                             </div>
 
@@ -97,28 +101,32 @@
                 <div class="col-md-12">
                     <div class="white-box">
 
-                        <form class="form-horizontal form-material" method="post" th:action="@{/admin/users/store}" th:object="${user}">
+                        <form class="form-horizontal form-material" method="post" th:action="@{/admin/users/store}"
+                              th:object="${user}">
 
-                            <input type="hidden" th:field="*{id}">
+                            <input th:field="*{id}" type="hidden">
 
                             <div class="form-group">
                                 <label class="col-md-12" th:for="username">Username</label>
                                 <div class="col-md-12">
-                                    <input type="text" placeholder="Johnathan Doe" class="form-control form-control-line" th:field="*{username}">
+                                    <input class="form-control form-control-line" placeholder="Johnathan Doe"
+                                           th:field="*{username}" type="text">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-md-12" th:for="email">Email</label>
                                 <div class="col-md-12">
-                                    <input type="email" placeholder="example@test.com" class="form-control form-control-line" th:field="*{email}">
+                                    <input class="form-control form-control-line" placeholder="example@test.com"
+                                           th:field="*{email}" type="email">
                                 </div>
                             </div>
 
                             <div class="form-group" th:for="password">
                                 <label class="col-md-12">Password</label>
                                 <div class="col-md-12">
-                                    <input type="password" placeholder="*****" class="form-control form-control-line" th:field="*{password}">
+                                    <input class="form-control form-control-line" placeholder="*****" th:field="*{password}"
+                                           type="password">
                                 </div>
                             </div>
 
@@ -126,7 +134,9 @@
                                 <label class="col-sm-12" th:for="role">Select Role</label>
                                 <div class="col-sm-12">
                                     <select class="form-control form-control-line" name="role.id">
-                                        <option th:each="item : ${groups}" th:value="${item.id}" th:text="${item.groupName}" th:selected="${item.id == group.id}"></option>
+                                        <option th:each="item : ${groups}" th:selected="${item.id == group.id}"
+                                                th:text="${item.groupName}"
+                                                th:value="${item.id}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -150,12 +160,12 @@
 
     <script src="https://kit.fontawesome.com/64d00aefba.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    <script crossorigin="anonymous"
             integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script crossorigin="anonymous"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-            crossorigin="anonymous"></script>
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="/js/jquery.slimscroll.js"></script>
     <script src="/js/waves.js"></script>
     <script src="/js/custom.min.js"></script>

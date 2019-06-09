@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
 import java.util.List;
 
 @Path("/usergroup")
-public class UserGroupService {
+public class UserGroupService extends AbstractService {
 
     @Autowired
     private SessionFactory sessionFactory;

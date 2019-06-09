@@ -9,6 +9,18 @@ import java.util.stream.Stream;
 @Entity
 public class User extends AbstractModel {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private int id;
+    private String username;
+    private String password;
+    private String email;
+    private String token;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role", nullable = false)
+    private UserGroup role;
+
     public User() {
     }
 
@@ -16,21 +28,21 @@ public class User extends AbstractModel {
         super(sessionFactory);
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private int id;
+    public static User find(SessionFactory sessionFactory, Integer id) {
+        return find(User.class, sessionFactory, id);
+    }
 
-    private String username;
-    private String password;
+    public static List<User> all(SessionFactory sessionFactory) {
+        return all(User.class, sessionFactory);
+    }
 
-    private String email;
+    public static User first(SessionFactory sessionFactory) {
+        return first(User.class, sessionFactory);
+    }
 
-    private String token;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role", nullable = false)
-    private UserGroup role;
+    public static Stream<User> stream(SessionFactory sessionFactory) {
+        return stream(User.class, sessionFactory);
+    }
 
     public int getId() {
         return id;
@@ -78,21 +90,5 @@ public class User extends AbstractModel {
 
     public void setRole(UserGroup role) {
         this.role = role;
-    }
-
-    public static User find(SessionFactory sessionFactory, Integer id) {
-        return find(User.class, sessionFactory, id);
-    }
-
-    public static List<User> all(SessionFactory sessionFactory) {
-        return all(User.class, sessionFactory);
-    }
-
-    public static User first(SessionFactory sessionFactory) {
-        return first(User.class, sessionFactory);
-    }
-
-    public static Stream<User> stream(SessionFactory sessionFactory) {
-        return stream(User.class, sessionFactory);
     }
 }

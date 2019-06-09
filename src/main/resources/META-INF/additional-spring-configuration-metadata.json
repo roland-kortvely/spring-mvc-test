@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "entities.path",
+      "type": "java.lang.String",
+      "description": "Package for application entities"
+    }
+  ]
+}

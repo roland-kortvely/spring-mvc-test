@@ -5,17 +5,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
-
+/**
+ * Exception handler for frontend
+ */
 @Controller
 public class ErrorsController extends AbstractController implements ErrorController {
 
+    /**
+     * Handle error and return Thymeleaf view
+     * @param model Instance of empty object for Thymeleaf, you fill model with data you want to share with View
+     * @return Error View
+     */
     @RequestMapping("/error")
-    public String errors(HttpServletRequest httpRequest, Model model) {
+    public String errors(Model model) {
 
         String error;
 
-        switch (getErrorCode(httpRequest)) {
+        switch (getErrorCode()) {
             case 400:
                 error = "Bad Request";
                 break;
@@ -40,14 +46,18 @@ public class ErrorsController extends AbstractController implements ErrorControl
         }
 
         model.addAttribute("error", error);
-        model.addAttribute("code", getErrorCode(httpRequest) + "");
+        model.addAttribute("code", getErrorCode());
 
         return "error";
     }
 
-    private int getErrorCode(HttpServletRequest httpRequest) {
-        return (Integer) httpRequest
-                .getAttribute("javax.servlet.error.status_code");
+    /**
+     * Parse error core from request
+     *
+     * @return error code
+     */
+    private int getErrorCode() {
+        return (Integer) request.getAttribute("javax.servlet.error.status_code");
     }
 
     @Override

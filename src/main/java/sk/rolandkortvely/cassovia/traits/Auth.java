@@ -1,4 +1,4 @@
-package sk.rolandkortvely.cassovia.controllers.traits;
+package sk.rolandkortvely.cassovia.traits;
 
 import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
@@ -12,16 +12,20 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+/**
+ * Auth Trait
+ */
 public interface Auth {
 
     /**
      * Login user
+     *
      * @param sessionFactory database context (MySQL)
-     * @param session session context (in browser)
-     * @param user POST data from form
+     * @param session        session context (in browser)
+     * @param user           POST data from form
      * @return true if user is authorized
      */
-    default boolean login(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, User user) {
+    default boolean login(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull User user) {
         if (user.getUsername() == null || user.getPassword() == null) {
             return false;
         }
@@ -48,24 +52,18 @@ public interface Auth {
     }
 
     /**
-     * Logout authenticated user and redirect him to homepage
+     * Logout authenticated user
+     *
      * @param session session context (in browser)
-     * @param request Client Request
-     * @param response Server Response to Client request
      */
-    default void logout(@NotNull HttpSession session, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
+    default void logout(@NotNull HttpSession session) {
         session.removeAttribute("login");
         session.removeAttribute("auth");
-        try {
-            response.sendRedirect(request.getContextPath() + "/");
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown error");
-        }
     }
 
     /**
      * @param sessionFactory database context (MySQL)
-     * @param session session context (in browser)
+     * @param session        session context (in browser)
      * @return authenticated user
      */
     default User auth(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
@@ -97,7 +95,7 @@ public interface Auth {
 
     /**
      * @param sessionFactory database context (MySQL)
-     * @param session session context (in browser)
+     * @param session        session context (in browser)
      * @return true if there is an authenticated user
      */
     default boolean isLoggedIn(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
@@ -106,8 +104,9 @@ public interface Auth {
 
     /**
      * Throw an Exception when user is not authorized to access the given view
+     *
      * @param sessionFactory database context (MySQL)
-     * @param session session context (in browser)
+     * @param session        session context (in browser)
      */
     default void protect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
         if (!isLoggedIn(sessionFactory, session)) {
@@ -117,8 +116,9 @@ public interface Auth {
 
     /**
      * Throw an Exception when user is not authorized to access the given view, user must be Admin
+     *
      * @param sessionFactory database context (MySQL)
-     * @param session session context (in browser)
+     * @param session        session context (in browser)
      */
     default void protectAdmin(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
         this.protect(sessionFactory, session);
@@ -130,10 +130,11 @@ public interface Auth {
 
     /**
      * Redirect authenticated users to homepage
+     *
      * @param sessionFactory database context (MySQL)
-     * @param session session context (in browser)
-     * @param request Client Request
-     * @param response Server Response to Client request
+     * @param session        session context (in browser)
+     * @param request        Client Request
+     * @param response       Server Response to Client request
      * @return true if client should be redirected to homepage
      */
     default boolean authenticatedRedirect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
@@ -147,18 +148,5 @@ public interface Auth {
         }
 
         return false;
-    }
-
-    /**
-     * Client IP address
-     * @param request Client Request
-     * @return client IP address
-     */
-    default String getClientIp(@NotNull HttpServletRequest request) {
-        String remoteAddr = request.getHeader("X-FORWARDED-FOR");
-        if (remoteAddr == null || "".equals(remoteAddr)) {
-            remoteAddr = request.getRemoteAddr();
-        }
-        return remoteAddr;
     }
 }
