@@ -70,11 +70,18 @@
                 </div>
             </div>
 
+            <div class="row" style="display: none" id="error">
+                <div class="col-md-12">
+                    <div class="alert alert-danger" role="alert" id="error-msg">
+                    </div>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col-md-12">
                     <div class="white-box">
 
-                        <form class="form-horizontal form-material" method="post" th:action="@{/admin/users/store}"
+                        <form id="create_user" class="form-horizontal form-material" method="post" th:action="@{/admin/users/store}"
                               th:object="${user}">
 
                             <input th:field="*{id}" type="hidden">
@@ -131,7 +138,7 @@
 
                             <div class="form-group">
                                 <div class="col-sm-12">
-                                    <button class="btn btn-success">Save</button>
+                                    <button type="button" id="save" class="btn btn-success" style="display: none">Save</button>
                                 </div>
                             </div>
                         </form>
@@ -156,6 +163,9 @@
     <script src="/js/jquery.slimscroll.js"></script>
     <script src="/js/waves.js"></script>
     <script src="/js/custom.min.js"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/validation.js"></script>
 </body>
 
 </html>
