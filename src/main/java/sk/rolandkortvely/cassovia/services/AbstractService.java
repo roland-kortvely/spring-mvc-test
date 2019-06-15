@@ -1,15 +1,14 @@
 package sk.rolandkortvely.cassovia.services;
 
 import org.hibernate.SessionFactory;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import sk.rolandkortvely.cassovia.models.User;
 import sk.rolandkortvely.cassovia.traits.Auth;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public class AbstractService implements Auth {
@@ -17,6 +16,7 @@ public class AbstractService implements Auth {
     /**
      * Instance of Mail, connection to SMTP server to send emails
      */
+    @Qualifier("getJavaMailSender")
     @Autowired
     public JavaMailSender emailSender;
     /**
@@ -54,10 +54,6 @@ public class AbstractService implements Auth {
 
     public boolean isLoggedIn() {
         return isLoggedIn(sessionFactory, session);
-    }
-
-    public boolean authenticatedRedirect(@NotNull HttpServletResponse response) {
-        return authenticatedRedirect(sessionFactory, session, request, response);
     }
 
     public void protectAdmin() {

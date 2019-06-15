@@ -51,10 +51,10 @@
             </div>
             <ul class="nav" id="side-menu">
                 <li style="padding: 70px 0 0;">
-                    <a class="waves-effect" href="/admin/users"><i aria-hidden="true" class="fa fa-user fa-fw"></i>Users</a>
+                    <a class="waves-effect" th:href="@{/admin/users}"><i aria-hidden="true" class="fa fa-user fa-fw"></i>Users</a>
                 </li>
                 <li>
-                    <a class="waves-effect" href="/admin/groups"><i aria-hidden="true"
+                    <a class="waves-effect" th:href="@{/admin/groups}"><i aria-hidden="true"
                                                                     class="fa fa-address-book fa-fw"></i>Groups</a>
                 </li>
             </ul>
@@ -69,8 +69,8 @@
                 </div>
                 <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
                     <a class="btn btn-primary pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light"
-                       href="/admin/users/create">Add</a>
-                    <a class="btn btn-default pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light" href="/admin/users/export"
+                       th:href="@{/admin/users/create}">Add</a>
+                    <a class="btn btn-default pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light" th:href="@{/admin/users/export}"
                        target="_blank">Export</a>
                 </div>
             </div>
@@ -97,7 +97,6 @@
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th>Username</th>
                                     <th>Email</th>
                                     <th>Role</th>
@@ -107,10 +106,9 @@
                                 <tbody>
 
                                 <tr th:each="user: ${users}">
-                                    <td th:text="${user.id}"></td>
                                     <td th:text="${user.username}"></td>
                                     <td th:text="${user.email}"></td>
-                                    <td th:text="${user.role.groupName}"></td>
+                                    <td th:text="${user.isAdmin() ? 'admin' : 'user'}"></td>
                                     <td>
 
                                         <div class="btn-group btn-group-sm" role="group">

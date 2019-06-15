@@ -51,11 +51,11 @@
             </div>
             <ul class="nav" id="side-menu">
                 <li style="padding: 70px 0 0;">
-                    <a class="waves-effect" href="/admin/users"><i aria-hidden="true" class="fa fa-user fa-fw"></i>Users</a>
+                    <a class="waves-effect" th:href="@{/admin/users}"><i aria-hidden="true" class="fa fa-user fa-fw"></i>Users</a>
                 </li>
                 <li>
-                    <a class="waves-effect" href="/admin/groups"><i aria-hidden="true"
-                                                                    class="fa fa-address-book fa-fw"></i>Groups</a>
+                    <a class="waves-effect" th:href="@{/admin/groups}"><i aria-hidden="true"
+                                                                          class="fa fa-address-book fa-fw"></i>Groups</a>
                 </li>
             </ul>
         </div>
@@ -66,6 +66,9 @@
             <div class="row bg-title">
                 <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
                     <h4 class="page-title">User Groups</h4>
+                </div>
+                <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+                    <a class="btn btn-default pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light" th:href="@{/admin/groups}">Back</a>
                 </div>
             </div>
 
@@ -81,62 +84,22 @@
                             <div class="form-group">
                                 <label class="col-md-12" th:for="groupName">Name</label>
                                 <div class="col-md-12">
-                                    <input class="form-control form-control-line" placeholder="Users" th:field="*{groupName}"
+                                    <input class="form-control form-control-line" placeholder="Group Name" th:field="*{groupName}"
                                            type="text">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <div class="col-sm-12">
-                                    <button class="btn btn-success">Save</button>
-                                </div>
-                            </div>
-                        </form>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="white-box">
-
-                        <form class="form-horizontal form-material" method="post" th:action="@{/admin/users/store}"
-                              th:object="${user}">
-
-                            <input th:field="*{id}" type="hidden">
-
-                            <div class="form-group">
-                                <label class="col-md-12" th:for="username">Username</label>
+                                <label class="col-md-12" th:for="users">Users</label>
                                 <div class="col-md-12">
-                                    <input class="form-control form-control-line" placeholder="Johnathan Doe"
-                                           th:field="*{username}" type="text">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="col-md-12" th:for="email">Email</label>
-                                <div class="col-md-12">
-                                    <input class="form-control form-control-line" placeholder="example@test.com"
-                                           th:field="*{email}" type="email">
-                                </div>
-                            </div>
-
-                            <div class="form-group" th:for="password">
-                                <label class="col-md-12">Password</label>
-                                <div class="col-md-12">
-                                    <input class="form-control form-control-line" placeholder="*****" th:field="*{password}"
-                                           type="password">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="col-sm-12" th:for="role">Select Role</label>
-                                <div class="col-sm-12">
-                                    <select class="form-control form-control-line" name="role.id">
-                                        <option th:each="item : ${groups}" th:selected="${item.id == group.id}"
-                                                th:text="${item.groupName}"
-                                                th:value="${item.id}"></option>
+                                    <select multiple class="form-control" name="users">
+                                        <option
+                                                th:each="user : ${users}"
+                                                th:selected="${user.assignedInGroup(group)}"
+                                                th:text="${user.username}"
+                                                th:value="${user.id}"
+                                        >
+                                        </option>
                                     </select>
                                 </div>
                             </div>

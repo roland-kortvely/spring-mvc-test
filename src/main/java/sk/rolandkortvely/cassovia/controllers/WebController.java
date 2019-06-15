@@ -7,7 +7,6 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.commons.io.IOUtils;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Controller;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.server.ResponseStatusException;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 import sk.rolandkortvely.cassovia.models.User;
@@ -27,13 +25,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Main Web Controller
  */
 @Controller
-@Scope(WebApplicationContext.SCOPE_SESSION)
 @RequestMapping("/")
 public class WebController extends AbstractController {
 
@@ -46,6 +44,14 @@ public class WebController extends AbstractController {
     }
 
     /**
+     * Redirects to /api/install
+     */
+    @RequestMapping("/install")
+    public void install(HttpServletResponse response) {
+        redirect(response, "/api/install");
+    }
+
+    /**
      * @param response Server Response to Client request
      * @param model    Instance of empty object for Thymeleaf, you fill model with data you want to share with View
      * @return login view (Thymeleaf, HTML file)
@@ -54,7 +60,8 @@ public class WebController extends AbstractController {
     public String login(HttpServletResponse response, Model model) {
 
         //Redirect authenticated users to homepage
-        if (authenticatedRedirect(response)) {
+        if (isLoggedIn()) {
+            redirect(response);
             return "error";
         }
 
@@ -75,7 +82,8 @@ public class WebController extends AbstractController {
     public void auth(HttpServletResponse response, @ModelAttribute User user) {
 
         //Redirect authenticated users to homepage
-        if (authenticatedRedirect(response)) {
+        if (isLoggedIn()) {
+            redirect(response);
             return;
         }
 
@@ -152,10 +160,9 @@ public class WebController extends AbstractController {
      * @param model    Instance of empty object for Thymeleaf, you fill model with data you want to share with View
      * @param id       User ID we are going to edit
      * @return Thymeleaf View, form to edit an existing user
-     * @throws Exception ..
      */
     @RequestMapping("/admin/users/{id}")
-    public String users_edit(HttpServletResponse response, Model model, @PathVariable Integer id) throws Exception {
+    public String users_edit(HttpServletResponse response, Model model, @PathVariable Integer id) {
         protectAdmin();
 
         User user = User.find(sessionFactory, id);
@@ -202,7 +209,7 @@ public class WebController extends AbstractController {
 
         user.delete();
 
-        flash("info", "User deleted!");
+        info("User deleted!");
 
         redirect(response, "/admin/users");
     }
@@ -215,18 +222,11 @@ public class WebController extends AbstractController {
      */
     @PostMapping("/admin/users/store")
     public void users_store(HttpServletResponse response, @ModelAttribute User data) {
-        protectAdmin();
+        users_store_raw(response, data, "/admin/users");
+    }
 
-        /*
-         * Data validation
-         * We want to validate posted group, whether it exists
-         */
-        UserGroup group = UserGroup.find(sessionFactory, data.getRole().getId());
-        if (group == null) {
-            error("Unknown role selected");
-            redirect(response, "/admin/users");
-            return;
-        }
+    private void users_store_raw(HttpServletResponse response, @ModelAttribute User data, String uri) {
+        protectAdmin();
 
         /*
          * Data validation
@@ -238,7 +238,7 @@ public class WebController extends AbstractController {
                 .findFirst().orElse(null) != null
         ) {
             error("Username already in use!");
-            redirect(response, "/admin/users");
+            redirect(response, uri);
             return;
         }
 
@@ -251,36 +251,55 @@ public class WebController extends AbstractController {
             user = User.find(sessionFactory, data.getId());
             if (user == null) {
                 error("User not found!");
-                redirect(response, "/admin/users");
+                redirect(response, uri);
                 return;
             }
 
-            flash("info", "User updated!");
+            info("User updated!");
         } else {
+
+            /*
+             * Validate password is set
+             */
+            if (data.getPassword().length() < 1) {
+                error("You need to set password!");
+                redirect(response, uri);
+                return;
+            }
+
             /*
              * New empty user we want to store in database
              */
             user = new User(sessionFactory);
-            flash("info", "User created!");
+            info("User created!");
 
             //Send welcome email
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("cassovia@example.com");
-            message.setTo(data.getEmail());
-            message.setSubject("Welcome, " + data.getUsername() + "!");
-            message.setText("Your account has been successfully created");
-            emailSender.send(message);
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom("cassovia@example.com");
+                message.setTo(data.getEmail());
+                message.setSubject("Welcome, " + data.getUsername() + "!");
+                message.setText("Your account has been successfully created");
+                emailSender.send(message);
+            } catch (Exception e) {
+                System.out.println("Unable to send email.");
+            }
         }
 
         //Copy form data to empty user we will store in database
         user.setUsername(data.getUsername());
         user.setEmail(data.getEmail());
-        user.setPassword(Hash.make(data.getPassword())); //Hash password
-        user.setRole(group);
+
+        if (data.getPassword().length() > 1) {
+            user.setPassword(Hash.make(data.getPassword())); //Hash password
+        }
+
+        user.setRole(data.getRole());
+        user.setGroups(data.getGroups());
 
         user.save(); //Store in database
 
-        redirect(response, "/admin/users");
+        redirect(response, uri);
     }
 
     /**
@@ -338,7 +357,7 @@ public class WebController extends AbstractController {
             row.addCell(email);
 
             PdfPCell group = new PdfPCell();
-            group.setPhrase(new Phrase(user.getRole().getGroupName()));
+            group.setPhrase(new Phrase(user.isAdmin() ? "admin" : "user"));
             row.addCell(group);
 
             try {
@@ -390,23 +409,21 @@ public class WebController extends AbstractController {
     public String groups_create(Model model) {
         protectAdmin();
 
-        model.addAttribute("user", new User());
         model.addAttribute("group", new UserGroup());
-        model.addAttribute("groups", UserGroup.all(sessionFactory));
+        model.addAttribute("users", User.all(sessionFactory));
 
         return "admin/groups/create";
     }
 
+
     /**
-     * Edit Group
+     * List of Users in Group
      *
-     * @param response Server Response to Client request
-     * @param model    Instance of empty object for Thymeleaf, you fill model with data you want to share with View
-     * @param id       User Group ID we are going to edit
-     * @return Thymeleaf View, form to edit an existing user group
+     * @param model Instance of empty object for Thymeleaf, you fill model with data you want to share with View
+     * @return Thymeleaf View, list of all users
      */
     @RequestMapping("/admin/groups/{id}")
-    public String groups_edit(HttpServletResponse response, Model model, @PathVariable Integer id) {
+    public String groups_users(HttpServletResponse response, Model model, @PathVariable Integer id) {
         protectAdmin();
 
         UserGroup group = UserGroup.find(sessionFactory, id);
@@ -418,9 +435,95 @@ public class WebController extends AbstractController {
 
         model.addAttribute("user", new User());
         model.addAttribute("group", group);
-        model.addAttribute("groups", UserGroup.all(sessionFactory));
+        model.addAttribute("users", User
+                .stream(sessionFactory)
+                .filter(user -> user.assignedInGroup(group))
+                .collect(Collectors.toList())
+        );
+
+        return "admin/groups/users";
+    }
+
+    /**
+     * Edit Group
+     *
+     * @param response Server Response to Client request
+     * @param model    Instance of empty object for Thymeleaf, you fill model with data you want to share with View
+     * @param id       User Group ID we are going to edit
+     * @return Thymeleaf View, form to edit an existing user group
+     */
+    @RequestMapping("/admin/groups/{id}/edit")
+    public String groups_edit(HttpServletResponse response, Model model, @PathVariable Integer id) {
+        protectAdmin();
+
+        UserGroup group = UserGroup.find(sessionFactory, id);
+        if (group == null) {
+            error("Group not found!");
+            redirect(response, "/admin/groups");
+            return "admin/groups/index";
+        }
+
+        model.addAttribute("group", group);
+        model.addAttribute("users", User.all(sessionFactory));
 
         return "admin/groups/create";
+    }
+
+    /**
+     * Create User and assign him to UserGroup
+     *
+     * @param response Server Response to Client request
+     * @param data     POST data from form
+     */
+    @PostMapping("/admin/groups/{id}/store-user")
+    public void groups_store_user(HttpServletResponse response, @PathVariable Integer id, @ModelAttribute User data) {
+        protectAdmin();
+
+        UserGroup group = UserGroup.find(sessionFactory, id);
+        if (group == null) {
+            error("Group not found!");
+            redirect(response, "/admin/groups");
+            return;
+        }
+
+        data.assignGroup(group);
+
+        users_store_raw(response, data, "/admin/groups/" + id);
+    }
+
+    /**
+     * Remove User from UserGroup
+     *
+     * @param response Server Response to Client request
+     * @param data     POST data from form
+     */
+    @PostMapping("/admin/groups/{id}/delete-user")
+    public void groups_delete_user(HttpServletResponse response, @PathVariable Integer id, @ModelAttribute User data) {
+        protectAdmin();
+
+        UserGroup group = UserGroup.find(sessionFactory, id);
+        if (group == null) {
+            error("Group not found!");
+            redirect(response, "/admin/groups");
+            return;
+        }
+
+        /*
+         * Search for user we want to remove from group
+         */
+        User user = User.find(sessionFactory, data.getId());
+        if (user == null) {
+            error("User not found!");
+            redirect(response, "/admin/groups/" + id);
+            return;
+        }
+
+        user.discardGroup(group);
+        user.save();
+
+        info("User removed from group!");
+
+        redirect(response, "/admin/groups/" + id);
     }
 
     /**
@@ -446,15 +549,9 @@ public class WebController extends AbstractController {
             return;
         }
 
-        if (group.getGroupName().equals("admin")) {
-            error("You cannot delete admin group!");
-            redirect(response, "/admin/groups");
-            return;
-        }
-
         group.delete();
 
-        flash("info", "Group deleted!");
+        info("Group deleted!");
 
         redirect(response, "/admin/groups");
     }
@@ -479,14 +576,16 @@ public class WebController extends AbstractController {
                 return;
             }
 
-            flash("info", "Group updated!");
+            info("Group updated!");
         } else {
             group = new UserGroup(sessionFactory);
-            flash("info", "Group created!");
+            info("Group created!");
         }
 
         group.setGroupName(data.getGroupName());
+        group.save();
 
+        group.setUsers(data.getUsers());
         group.save();
 
         redirect(response, "/admin/groups");

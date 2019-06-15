@@ -51,11 +51,12 @@
             </div>
             <ul class="nav" id="side-menu">
                 <li style="padding: 70px 0 0;">
-                    <a class="waves-effect" href="/admin/users"><i aria-hidden="true" class="fa fa-user fa-fw"></i>Users</a>
+                    <a class="waves-effect" th:href="@{/admin/users}"><i aria-hidden="true"
+                                                                         class="fa fa-user fa-fw"></i>Users</a>
                 </li>
                 <li>
-                    <a class="waves-effect" href="/admin/groups"><i aria-hidden="true"
-                                                                    class="fa fa-address-book fa-fw"></i>Groups</a>
+                    <a class="waves-effect" th:href="@{/admin/groups}"><i aria-hidden="true"
+                                                                          class="fa fa-address-book fa-fw"></i>Groups</a>
                 </li>
             </ul>
         </div>
@@ -97,18 +98,33 @@
                             <div class="form-group" th:for="password">
                                 <label class="col-md-12">Password</label>
                                 <div class="col-md-12">
-                                    <input class="form-control form-control-line" placeholder="*****" th:field="*{password}"
+                                    <input class="form-control form-control-line" placeholder="*****"
+                                           th:field="*{password}"
                                            type="password">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-12" th:for="role">Select Role</label>
-                                <div class="col-sm-12">
-                                    <select class="form-control form-control-line" th:field="*{role.id}">
-                                        <option th:each="group : ${groups}" th:selected="${user.role != null && user.role.id == group.id}"
+                                <label class="col-md-12">User Role</label>
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" th:field="*{role}">
+                                        <label class="form-check-label" th:for="role">Admin</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-12" th:for="groups">Groups</label>
+                                <div class="col-md-12">
+                                    <select multiple class="form-control" name="groups">
+                                        <option
+                                                th:each="group : ${groups}"
+                                                th:selected="${user.assignedInGroup(group)}"
                                                 th:text="${group.groupName}"
-                                                th:value="${group.id}"></option>
+                                                th:value="${group.id}"
+                                        >
+                                        </option>
                                     </select>
                                 </div>
                             </div>

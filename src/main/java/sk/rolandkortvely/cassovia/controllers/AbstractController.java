@@ -3,6 +3,7 @@ package sk.rolandkortvely.cassovia.controllers;
 import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,6 +25,7 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
     /**
      * Instance of Mail, connection to SMTP server to send emails
      */
+    @Qualifier("getJavaMailSender")
     @Autowired
     public JavaMailSender emailSender;
     /**
@@ -62,7 +64,7 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
      */
     @ModelAttribute("info")
     public String info() {
-        return getFlash(session, "info");
+        return getInfo(session);
     }
 
     /**
@@ -83,9 +85,7 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
             return false;
         }
 
-        return auth()
-                .getRole()
-                .getGroupName().equals("admin");
+        return auth().isAdmin();
     }
 
     /**
@@ -98,7 +98,16 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
 
     /* NOTHING IMPORTANT BELOW.. JUST A REFLECTION */
 
-    public void redirect(@NotNull HttpServletResponse response, String uri) {
+    public void redirect(@NotNull HttpServletResponse response) {
+        redirect(response, "/");
+    }
+
+    /**
+     * Redirect user to given URL
+     * @param response Server Response to Client request
+     * @param uri URL to redirect user to within given domain
+     */
+    public void redirect(@NotNull HttpServletResponse response, String uri ) {
         try {
             response.sendRedirect(request.getContextPath() + uri);
         } catch (IOException e) {
@@ -113,12 +122,8 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
         error(session, msg);
     }
 
-    public String getFlash(String key) {
-        return getFlash(session, key);
-    }
-
-    public void flash(String key, String msg) {
-        flash(session, key, msg);
+    public void info(String msg) {
+        info(session, msg);
     }
 
     /* Auth Trait */
@@ -133,10 +138,6 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
 
     public boolean isLoggedIn() {
         return isLoggedIn(sessionFactory, session);
-    }
-
-    public boolean authenticatedRedirect(@NotNull HttpServletResponse response) {
-        return authenticatedRedirect(sessionFactory, session, request, response);
     }
 
     public void protectAdmin() {

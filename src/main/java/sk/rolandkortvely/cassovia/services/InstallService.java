@@ -3,20 +3,19 @@ package sk.rolandkortvely.cassovia.services;
 import org.springframework.http.ResponseEntity;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 import sk.rolandkortvely.cassovia.models.User;
-import sk.rolandkortvely.cassovia.models.UserGroup;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 /**
- * Fill the database with default UserGroup and User
+ * Fill the database with default User
  */
 @Path("/install")
 public class InstallService extends AbstractService {
 
     /**
-     * Fill the database with default UserGroup and User
+     * Fill the database with default User
      *
      * @return Generated User
      */
@@ -24,18 +23,6 @@ public class InstallService extends AbstractService {
     @Path("/")
     @Produces("application/json")
     public ResponseEntity<User> install() {
-
-        /*
-         * Creates default UserGroup "admin"
-         */
-        UserGroup group = UserGroup.stream(sessionFactory)
-                .filter(userGroup -> userGroup.getGroupName().equals("admin"))
-                .findFirst().orElse(null);
-        if (group == null) {
-            group = new UserGroup(sessionFactory);
-            group.setGroupName("admin");
-            group.save();
-        }
 
         /*
          * Creates default User "admin" with "admin" role
@@ -48,7 +35,7 @@ public class InstallService extends AbstractService {
             user.setUsername("admin");
             user.setPassword(Hash.make("s3cur3"));
             user.setEmail("admin@test.com");
-            user.setRole(group);
+            user.setAdmin();
             user.save();
         }
 

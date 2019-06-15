@@ -30,15 +30,15 @@
             </li>
 
             <li class="nav-item" th:if="${guest}">
-                <a class="nav-link" href="/login">Login</a>
+                <a class="nav-link" th:href="@{/login}">Login</a>
             </li>
 
             <li class="nav-item" th:if="${admin}">
-                <a class="nav-link" href="/admin">Admin</a>
+                <a class="nav-link" th:href="@{/admin}">Admin</a>
             </li>
 
             <li class="nav-item" th:unless="${guest}">
-                <a class="nav-link" href="/logout">Logout</a>
+                <a class="nav-link" th:href="@{/logout}">Logout</a>
             </li>
 
         </ul>
@@ -50,6 +50,13 @@
 
     Welcome <span th:if="${guest}">guest</span><span th:text="${auth.username}" th:unless="${guest}"></span>!
 
+    <div th:unless="${guest}">
+
+        <p th:if="${auth.groups.size() }">Your groups:</p>
+        <ul>
+            <li th:each="group: ${auth.groups}" th:text="*{group.groupName}"></li>
+        </ul>
+    </div>
 </div>
 
 <script crossorigin="anonymous"

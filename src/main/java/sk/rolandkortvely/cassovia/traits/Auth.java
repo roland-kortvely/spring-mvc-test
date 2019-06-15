@@ -7,10 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import sk.rolandkortvely.cassovia.helpers.Hash;
 import sk.rolandkortvely.cassovia.models.User;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 /**
  * Auth Trait
@@ -123,30 +120,8 @@ public interface Auth {
     default void protectAdmin(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session) {
         this.protect(sessionFactory, session);
 
-        if (!auth(sessionFactory, session).getRole().getGroupName().equals("admin")) {
+        if (!auth(sessionFactory, session).isAdmin()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login please as admin");
         }
-    }
-
-    /**
-     * Redirect authenticated users to homepage
-     *
-     * @param sessionFactory database context (MySQL)
-     * @param session        session context (in browser)
-     * @param request        Client Request
-     * @param response       Server Response to Client request
-     * @return true if client should be redirected to homepage
-     */
-    default boolean authenticatedRedirect(@NotNull SessionFactory sessionFactory, @NotNull HttpSession session, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) {
-        if (isLoggedIn(sessionFactory, session)) {
-            try {
-                response.sendRedirect(request.getContextPath() + "/");
-            } catch (IOException e) {
-                return true;
-            }
-            return true;
-        }
-
-        return false;
     }
 }

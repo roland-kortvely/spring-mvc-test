@@ -11,20 +11,18 @@ public interface Session {
 
     /**
      * @param session session context (in browser)
-     * @param key     String session key, ID
      * @param msg     String message to save
      */
-    default void flash(@NotNull HttpSession session, @NotNull String key, @NotNull String msg) {
-        session.setAttribute(key, msg);
+    default void info(@NotNull HttpSession session, @NotNull String msg) {
+        session.setAttribute("info", msg);
     }
 
     /**
      * @param session session context (in browser)
-     * @param key     String session key, ID
      */
-    default String getFlash(@NotNull HttpSession session, @NotNull String key) {
-        String msg = (String) session.getAttribute(key);
-        session.removeAttribute(key);
+    default String getInfo(@NotNull HttpSession session) {
+        String msg = (String) session.getAttribute("info");
+        session.removeAttribute("info");
         return msg;
     }
 

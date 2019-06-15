@@ -66,11 +66,29 @@
         <div class="container-fluid">
             <div class="row bg-title">
                 <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
-                    <h4 class="page-title">User Groups</h4>
+                    <h4 class="page-title">Users in <span th:text="${group.groupName}"></span></h4>
                 </div>
+
                 <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
-                    <a class="btn btn-primary pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light"
-                       th:href="@{/admin/groups/create}">Add</a>
+
+                    <form method="post" th:action="@{/admin/groups/delete}"
+                          th:object="${group}">
+
+                        <input th:name="id" th:value="*{id}" type="hidden">
+
+                        <a class="btn btn-default pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light"
+                           th:href="@{/admin/groups}">Back</a>
+
+                        <button class="btn btn-danger pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light"
+                                onclick="confirm('Are you sure you want to delete this group?') ? this.parentElement.submit() : ''"
+                                type="button"
+                        >Delete
+                        </button>
+
+                        <a class="btn btn-primary pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light"
+                           th:href="${'/admin/groups/'+group.id+'/edit'}">Edit</a>
+
+                    </form>
                 </div>
             </div>
 
@@ -89,38 +107,95 @@
             </div>
 
             <div class="row">
-                <div class="col-md-12">
+
+                <div class="col-md-6">
+                    <div class="white-box">
+
+                        <form class="form-horizontal form-material" method="post"
+                              th:action="${'/admin/groups/'+group.id+'/store-user'}"
+                              th:object="${user}">
+
+                            <input th:field="*{id}" type="hidden">
+
+                            <div class="form-group">
+                                <label class="col-md-12" th:for="username">Username</label>
+                                <div class="col-md-12">
+                                    <input class="form-control form-control-line" placeholder="Johnathan Doe"
+                                           th:field="*{username}" type="text">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-12" th:for="email">Email</label>
+                                <div class="col-md-12">
+                                    <input class="form-control form-control-line" placeholder="example@test.com"
+                                           th:field="*{email}" type="email">
+                                </div>
+                            </div>
+
+                            <div class="form-group" th:for="password">
+                                <label class="col-md-12">Password</label>
+                                <div class="col-md-12">
+                                    <input class="form-control form-control-line" placeholder="*****"
+                                           th:field="*{password}"
+                                           type="password">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-12">User Role</label>
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" th:field="*{role}">
+                                        <label class="form-check-label" th:for="role">Admin</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <button class="btn btn-success">Save</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
                     <div class="white-box">
 
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
 
-                                <tr th:each="group: ${groups}">
-                                    <td>
-                                        <a th:href="${'/admin/groups/'+group.id}" th:text="${group.groupName}"></a>
-                                    </td>
+                                <tr th:each="user: ${users}">
+                                    <td th:text="${user.username}"></td>
+                                    <td th:text="${user.email}"></td>
+                                    <td th:text="${user.isAdmin() ? 'admin' : 'user'}"></td>
                                     <td>
 
                                         <div class="btn-group btn-group-sm" role="group">
 
-                                            <form method="post" th:action="@{/admin/groups/delete}"
-                                                  th:object="${group}">
+                                            <form method="post" th:action="${'/admin/groups/'+group.id+'/delete-user'}"
+                                                  th:object="${user}">
 
                                                 <input th:name="id" th:value="*{id}" type="hidden">
 
-                                                <a class="btn btn-info" th:href="${'/admin/groups/'+group.id+'/edit'}">Edit</a>
+                                                <a class="btn btn-info" th:href="${'/admin/users/'+user.id}">Edit</a>
 
                                                 <button class="btn btn-danger"
-                                                        onclick="confirm('Are you sure you want to delete this group?') ? this.parentElement.submit() : ''"
+                                                        onclick="confirm('Are you sure you want to remove this user from group?') ? this.parentElement.submit() : ''"
                                                         type="button"
-                                                >Delete
+                                                >Remove
                                                 </button>
                                             </form>
                                         </div>

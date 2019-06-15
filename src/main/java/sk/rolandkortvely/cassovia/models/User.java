@@ -3,7 +3,9 @@ package sk.rolandkortvely.cassovia.models;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Entity
@@ -13,13 +15,21 @@ public class User extends AbstractModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private int id;
+
     private String username;
     private String password;
     private String email;
     private String token;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role", nullable = false)
-    private UserGroup role;
+
+    private Boolean role = false;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_group",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "group_id")}
+    )
+    private Set<UserGroup> groups = new HashSet<>();
 
     public User() {
     }
@@ -84,11 +94,47 @@ public class User extends AbstractModel {
         this.token = token;
     }
 
-    public UserGroup getRole() {
+    public Set<UserGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<UserGroup> groups) {
+        this.groups = groups;
+    }
+
+    public boolean assignedInGroup(UserGroup userGroup) {
+        return groups
+                .stream()
+                .filter(group -> group.getGroupName().equals(userGroup.getGroupName()))
+                .findFirst()
+                .orElse(null) != null;
+    }
+
+    public void assignGroup(UserGroup userGroup) {
+        this.groups.add(userGroup);
+    }
+
+    public void discardGroup(UserGroup userGroup) {
+        for(UserGroup group : groups) {
+            if (group.getId() == userGroup.getId()) {
+                this.groups.remove(group);
+            }
+        }
+    }
+
+    public Boolean getRole() {
         return role;
     }
 
-    public void setRole(UserGroup role) {
+    public void setRole(Boolean role) {
         this.role = role;
+    }
+
+    public Boolean isAdmin() {
+        return this.getRole();
+    }
+
+    public void setAdmin() {
+        this.setRole(true);
     }
 }
