@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
  * Crypto functions for development purposes
  */
 @Path("/crypto")
-public class CryptoService extends AbstractService {
+public class CryptoService extends Service {
 
     /**
      * Generated hash for the given String

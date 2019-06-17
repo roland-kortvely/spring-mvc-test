@@ -19,22 +19,32 @@ public class Services extends ResourceConfig {
      *
      * @return Service for default installation
      */
-    @Bean(name = "installService")
+    @Bean
     public InstallService installService() {
         return new InstallService();
     }
 
-    @Bean(name = "cryptoService")
+    @Bean
     public CryptoService cryptoService() {
         return new CryptoService();
     }
 
-    @Bean(name = "userGroupService")
+    @Bean
+    public TestService testService() {
+        return new TestService();
+    }
+
+    @Bean
+    public ValidationService validationService() {
+        return new ValidationService();
+    }
+
+    @Bean
     public UserGroupService userGroupService() {
         return new UserGroupService();
     }
 
-    @Bean(name = "userService")
+    @Bean
     public UserService userService() {
         return new UserService();
     }

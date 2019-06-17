@@ -6,10 +6,11 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Entity
-public class User extends AbstractModel {
+public class User extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,15 +40,20 @@ public class User extends AbstractModel {
     }
 
     public static User find(SessionFactory sessionFactory, Integer id) {
-        return find(User.class, sessionFactory, id);
+        return query(sessionFactory)
+                .where("id", id)
+                .stream()
+                .findFirst().orElse(null);
     }
 
     public static List<User> all(SessionFactory sessionFactory) {
-        return all(User.class, sessionFactory);
+        return query(sessionFactory)
+                .stream()
+                .collect(Collectors.toList());
     }
 
-    public static User first(SessionFactory sessionFactory) {
-        return first(User.class, sessionFactory);
+    public static QueryStream<User> query(SessionFactory sessionFactory) {
+        return new QueryStream<>(User.class, sessionFactory);
     }
 
     public static Stream<User> stream(SessionFactory sessionFactory) {
@@ -115,7 +121,7 @@ public class User extends AbstractModel {
     }
 
     public void discardGroup(UserGroup userGroup) {
-        for(UserGroup group : groups) {
+        for (UserGroup group : groups) {
             if (group.getId() == userGroup.getId()) {
                 this.groups.remove(group);
             }

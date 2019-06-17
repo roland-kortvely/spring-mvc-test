@@ -1,7 +1,5 @@
 package sk.rolandkortvely.cassovia.services;
 
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import sk.rolandkortvely.cassovia.models.User;
 
@@ -11,13 +9,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 @Path("/validate")
-public class ValidationService extends AbstractService {
-
-    /**
-     * Database context (MySQL)
-     */
-    @Autowired
-    protected SessionFactory sessionFactory;
+public class ValidationService extends Service {
 
     @GET
     @Path("/username/{text}")

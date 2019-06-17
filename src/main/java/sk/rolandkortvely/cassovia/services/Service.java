@@ -5,13 +5,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
 import sk.rolandkortvely.cassovia.models.User;
 import sk.rolandkortvely.cassovia.traits.Auth;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-public class AbstractService implements Auth {
+/**
+ * Abstract Service to extend Services with useful methods
+ */
+@Component
+public abstract class Service implements Auth {
 
     /**
      * Instance of Mail, connection to SMTP server to send emails

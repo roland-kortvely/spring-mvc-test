@@ -7,10 +7,11 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Entity
-public class UserGroup extends AbstractModel {
+public class UserGroup extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,19 +36,24 @@ public class UserGroup extends AbstractModel {
     }
 
     public static UserGroup find(SessionFactory sessionFactory, Integer id) {
-        return find(UserGroup.class, sessionFactory, id);
+        return query(sessionFactory)
+                .where("id", id)
+                .stream()
+                .findFirst().orElse(null);
     }
 
     public static List<UserGroup> all(SessionFactory sessionFactory) {
-        return all(UserGroup.class, sessionFactory);
-    }
-
-    public static UserGroup first(SessionFactory sessionFactory) {
-        return first(UserGroup.class, sessionFactory);
+        return query(sessionFactory)
+                .stream()
+                .collect(Collectors.toList());
     }
 
     public static Stream<UserGroup> stream(SessionFactory sessionFactory) {
         return stream(UserGroup.class, sessionFactory);
+    }
+
+    public static QueryStream<UserGroup> query(SessionFactory sessionFactory) {
+        return new QueryStream<>(UserGroup.class, sessionFactory, "groupName");
     }
 
     public int getId() {

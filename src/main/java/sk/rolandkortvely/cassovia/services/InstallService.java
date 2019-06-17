@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
  * Fill the database with default User
  */
 @Path("/install")
-public class InstallService extends AbstractService {
+public class InstallService extends Service {
 
     /**
      * Fill the database with default User
@@ -20,7 +20,6 @@ public class InstallService extends AbstractService {
      * @return Generated User
      */
     @GET
-    @Path("/")
     @Produces("application/json")
     public ResponseEntity<User> install() {
 

@@ -30,16 +30,22 @@ public interface Auth {
             return false;
         }
 
-        User q = User.stream(sessionFactory)
-                .filter(u -> user.getUsername().equals(u.getUsername()))
-                .findFirst()
-                .orElse(null);
+        User q;
 
-        if (q == null) {
+        try {
+
+            q = User.query(sessionFactory)
+                    .where("username", user.getUsername())
+                    .stream()
+                    .filter(u -> Hash.check(user.getPassword(), u.getPassword()))
+                    .findFirst().orElse(null);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             return false;
         }
 
-        if (!Hash.check(user.getPassword(), q.getPassword())) {
+
+        if (q == null) {
             return false;
         }
 
@@ -84,8 +90,9 @@ public interface Auth {
         /*
          * find authenticated user in database, based on session hashed password and username
          */
-        return User.stream(sessionFactory)
-                .filter(u -> username.equals(u.getUsername()))
+        return User.query(sessionFactory)
+                .where("username", username)
+                .stream()
                 .filter(u -> Hash.check(u.getPassword(), auth))
                 .findFirst().orElse(null);
     }

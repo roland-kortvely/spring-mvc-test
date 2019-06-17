@@ -1,7 +1,5 @@
 package sk.rolandkortvely.cassovia.services;
 
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import sk.rolandkortvely.cassovia.models.User;
 
@@ -12,13 +10,9 @@ import javax.ws.rs.Produces;
 import java.util.List;
 
 @Path("/user")
-public class UserService extends AbstractService {
-
-    @Autowired
-    private SessionFactory sessionFactory;
+public class UserService extends Service {
 
     @GET
-    @Path("/")
     @Produces("application/json")
     public ResponseEntity<List<User>> all() {
         return ResponseEntity.ok().body(User.all(sessionFactory));

@@ -13,7 +13,7 @@ public class CassoviaApplication {
 
     /**
      * Run Server
-     * To fill the database with default data, go to /api/install
+     * To fill the database with default data, go to /install
      *
      * @param args app arguments
      */
