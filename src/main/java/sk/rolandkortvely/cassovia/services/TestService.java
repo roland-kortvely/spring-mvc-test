@@ -17,7 +17,7 @@ public class TestService extends Service {
     @GET
     public ResponseEntity<List> test() {
 
-        List<User> r = User.query(sessionFactory)
+        List<User> r = User.query()
                 .orderBy("id", Order.DESC)
                 .stream().collect(Collectors.toList());
 

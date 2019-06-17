@@ -26,11 +26,11 @@ public class InstallService extends Service {
         /*
          * Creates default User "admin" with "admin" role
          */
-        User user = User.stream(sessionFactory)
+        User user = User.stream()
                 .filter(u -> u.getUsername().equals("admin"))
                 .findFirst().orElse(null);
         if (user == null) {
-            user = new User(sessionFactory);
+            user = new User();
             user.setUsername("admin");
             user.setPassword(Hash.make("s3cur3"));
             user.setEmail("admin@test.com");

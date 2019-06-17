@@ -1,7 +1,7 @@
 package sk.rolandkortvely.cassovia.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.SessionFactory;
+import sk.rolandkortvely.cassovia.DB;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -28,32 +28,25 @@ public class UserGroup extends Model {
     )
     private Set<User> users = new HashSet<>();
 
-    public UserGroup() {
-    }
-
-    public UserGroup(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
-
-    public static UserGroup find(SessionFactory sessionFactory, Integer id) {
-        return query(sessionFactory)
+    public static UserGroup find(Integer id) {
+        return query()
                 .where("id", id)
                 .stream()
                 .findFirst().orElse(null);
     }
 
-    public static List<UserGroup> all(SessionFactory sessionFactory) {
-        return query(sessionFactory)
+    public static List<UserGroup> all() {
+        return query()
                 .stream()
                 .collect(Collectors.toList());
     }
 
-    public static Stream<UserGroup> stream(SessionFactory sessionFactory) {
-        return stream(UserGroup.class, sessionFactory);
+    public static Stream<UserGroup> stream() {
+        return stream(UserGroup.class);
     }
 
-    public static QueryStream<UserGroup> query(SessionFactory sessionFactory) {
-        return new QueryStream<>(UserGroup.class, sessionFactory, "groupName");
+    public static QueryStream<UserGroup> query() {
+        return new QueryStream<>(UserGroup.class, DB.sessionFactory, "groupName");
     }
 
     public int getId() {

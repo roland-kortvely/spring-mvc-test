@@ -16,7 +16,7 @@ public class ValidationService extends Service {
     @Produces("application/json")
     public ResponseEntity<Boolean> crypt(@PathParam("text") String username) {
         return ResponseEntity.ok().body(User
-                .stream(sessionFactory)
+                .stream()
                 .filter(user -> user.getUsername().equals(username))
                 .findFirst().orElse(null) == null
         );

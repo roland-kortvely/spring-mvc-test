@@ -13,6 +13,7 @@ public class ErrorsController extends AbstractController implements ErrorControl
 
     /**
      * Handle error and return Thymeleaf view
+     *
      * @param model Instance of empty object for Thymeleaf, you fill model with data you want to share with View
      * @return Error View
      */

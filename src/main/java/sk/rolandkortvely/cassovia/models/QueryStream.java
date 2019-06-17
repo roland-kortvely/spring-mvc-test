@@ -26,10 +26,6 @@ public class QueryStream<AModel extends Model> extends Model {
     private Predicate predicateResult;
     private List<Predicate> predicates = new ArrayList<>();
 
-    public enum Order {
-        ASC, DESC
-    }
-
     QueryStream(Class<AModel> modelClass, SessionFactory sessionFactory) {
 
         session = sessionFactory.openSession();
@@ -147,8 +143,10 @@ public class QueryStream<AModel extends Model> extends Model {
         tx.commit();
         session.close();
 
-        result.forEach(AModel -> AModel.setSessionFactory(sessionFactory));
-
         return result.stream();
+    }
+
+    public enum Order {
+        ASC, DESC
     }
 }

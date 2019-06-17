@@ -1,6 +1,6 @@
 package sk.rolandkortvely.cassovia.models;
 
-import org.hibernate.SessionFactory;
+import sk.rolandkortvely.cassovia.DB;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -32,32 +32,25 @@ public class User extends Model {
     )
     private Set<UserGroup> groups = new HashSet<>();
 
-    public User() {
-    }
-
-    public User(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
-
-    public static User find(SessionFactory sessionFactory, Integer id) {
-        return query(sessionFactory)
+    public static User find(Integer id) {
+        return query()
                 .where("id", id)
                 .stream()
                 .findFirst().orElse(null);
     }
 
-    public static List<User> all(SessionFactory sessionFactory) {
-        return query(sessionFactory)
+    public static List<User> all() {
+        return query()
                 .stream()
                 .collect(Collectors.toList());
     }
 
-    public static QueryStream<User> query(SessionFactory sessionFactory) {
-        return new QueryStream<>(User.class, sessionFactory);
+    public static QueryStream<User> query() {
+        return new QueryStream<>(User.class, DB.sessionFactory);
     }
 
-    public static Stream<User> stream(SessionFactory sessionFactory) {
-        return stream(User.class, sessionFactory);
+    public static Stream<User> stream() {
+        return stream(User.class);
     }
 
     public int getId() {

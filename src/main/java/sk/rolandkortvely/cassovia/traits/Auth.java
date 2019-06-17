@@ -34,7 +34,7 @@ public interface Auth {
 
         try {
 
-            q = User.query(sessionFactory)
+            q = User.query()
                     .where("username", user.getUsername())
                     .stream()
                     .filter(u -> Hash.check(user.getPassword(), u.getPassword()))
@@ -90,7 +90,7 @@ public interface Auth {
         /*
          * find authenticated user in database, based on session hashed password and username
          */
-        return User.query(sessionFactory)
+        return User.query()
                 .where("username", username)
                 .stream()
                 .filter(u -> Hash.check(u.getPassword(), auth))

@@ -9,7 +9,7 @@ $(document).ready(function () {
         icon: 'warning',
         hideAfter: 3500,
         stack: 6
-    })
+    });
 
 
     //ct-visits
@@ -73,7 +73,7 @@ $(document).ready(function () {
             barSpacing: '5',
             barColor: '#f33155'
         });
-    }
+    };
     var sparkResize;
     $(window).on("resize", function (e) {
         clearTimeout(sparkResize);

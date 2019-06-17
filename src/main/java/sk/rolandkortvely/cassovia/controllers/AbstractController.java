@@ -104,10 +104,11 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
 
     /**
      * Redirect user to given URL
+     *
      * @param response Server Response to Client request
-     * @param uri URL to redirect user to within given domain
+     * @param uri      URL to redirect user to within given domain
      */
-    public void redirect(@NotNull HttpServletResponse response, String uri ) {
+    public void redirect(@NotNull HttpServletResponse response, String uri) {
         try {
             response.sendRedirect(request.getContextPath() + uri);
         } catch (IOException e) {

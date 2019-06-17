@@ -51,7 +51,8 @@
             </div>
             <ul class="nav" id="side-menu">
                 <li style="padding: 70px 0 0;">
-                    <a class="waves-effect" th:href="@{/admin/users}"><i aria-hidden="true" class="fa fa-user fa-fw"></i>Users</a>
+                    <a class="waves-effect" th:href="@{/admin/users}"><i aria-hidden="true"
+                                                                         class="fa fa-user fa-fw"></i>Users</a>
                 </li>
                 <li>
                     <a class="waves-effect" th:href="@{/admin/groups}"><i aria-hidden="true"
@@ -68,7 +69,8 @@
                     <h4 class="page-title">User Groups</h4>
                 </div>
                 <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
-                    <a class="btn btn-default pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light" th:href="@{/admin/groups}">Back</a>
+                    <a class="btn btn-default pull-right m-l-20 hidden-xs hidden-sm waves-effect waves-light"
+                       th:href="@{/admin/groups}">Back</a>
                 </div>
             </div>
 
@@ -84,7 +86,8 @@
                             <div class="form-group">
                                 <label class="col-md-12" th:for="groupName">Name</label>
                                 <div class="col-md-12">
-                                    <input class="form-control form-control-line" placeholder="Group Name" th:field="*{groupName}"
+                                    <input class="form-control form-control-line" placeholder="Group Name"
+                                           th:field="*{groupName}"
                                            type="text">
                                 </div>
                             </div>
@@ -92,7 +95,7 @@
                             <div class="form-group">
                                 <label class="col-md-12" th:for="users">Users</label>
                                 <div class="col-md-12">
-                                    <select multiple class="form-control" name="users">
+                                    <select class="form-control" multiple name="users">
                                         <option
                                                 th:each="user : ${users}"
                                                 th:selected="${user.assignedInGroup(group)}"
