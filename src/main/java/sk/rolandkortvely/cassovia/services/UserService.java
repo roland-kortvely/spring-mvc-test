@@ -15,13 +15,13 @@ public class UserService extends Service {
     @GET
     @Produces("application/json")
     public ResponseEntity<List<User>> all() {
-        return ResponseEntity.ok().body(User.all());
+        return ResponseEntity.ok().body(new User().all());
     }
 
     @GET
     @Path("/{id}")
     @Produces("application/json")
     public ResponseEntity<User> get(@PathParam("id") int id) {
-        return ResponseEntity.ok().body(User.find(id));
+        return ResponseEntity.ok().body(new User().find(id));
     }
 }

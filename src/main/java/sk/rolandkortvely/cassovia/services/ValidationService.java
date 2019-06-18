@@ -15,10 +15,11 @@ public class ValidationService extends Service {
     @Path("/username/{text}")
     @Produces("application/json")
     public ResponseEntity<Boolean> crypt(@PathParam("text") String username) {
-        return ResponseEntity.ok().body(User
-                .stream()
-                .filter(user -> user.getUsername().equals(username))
-                .findFirst().orElse(null) == null
+        return ResponseEntity.ok().body(
+                new User()
+                        .stream()
+                        .filter(user -> user.getUsername().equals(username))
+                        .findFirst().orElse(null) == null
         );
     }
 }

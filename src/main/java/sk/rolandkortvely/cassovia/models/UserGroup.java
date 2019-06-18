@@ -1,17 +1,17 @@
 package sk.rolandkortvely.cassovia.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import sk.rolandkortvely.cassovia.DB;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Entity
-public class UserGroup extends Model {
+public class UserGroup extends Model<UserGroup> {
+
+    public UserGroup() {
+        super(UserGroup.class);
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,27 +27,6 @@ public class UserGroup extends Model {
             inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
     private Set<User> users = new HashSet<>();
-
-    public static UserGroup find(Integer id) {
-        return query()
-                .where("id", id)
-                .stream()
-                .findFirst().orElse(null);
-    }
-
-    public static List<UserGroup> all() {
-        return query()
-                .stream()
-                .collect(Collectors.toList());
-    }
-
-    public static Stream<UserGroup> stream() {
-        return stream(UserGroup.class);
-    }
-
-    public static QueryStream<UserGroup> query() {
-        return new QueryStream<>(UserGroup.class, DB.sessionFactory, "groupName");
-    }
 
     public int getId() {
         return id;

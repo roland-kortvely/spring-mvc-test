@@ -1,12 +1,12 @@
 package sk.rolandkortvely.cassovia.controllers;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
  * Additional attributes for Thymeleaf
  */
-@Controller
+@Component
 public class Attributes {
 
     @ModelAttribute("author")

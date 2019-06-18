@@ -132,7 +132,7 @@ public class WebController extends AbstractController {
         protectAdmin();
 
         model.addAttribute("user", new User()); //Because we want to be able to delete users
-        model.addAttribute("users", User.all()); //List of all users
+        model.addAttribute("users", new User().all()); //List of all users
 
         return "admin/users/index";
     }
@@ -148,7 +148,7 @@ public class WebController extends AbstractController {
         protectAdmin();
 
         model.addAttribute("user", new User());  //Because we want to be able to create a new user
-        model.addAttribute("groups", UserGroup.all()); //Because we want to be able to assign a role to newly created user
+        model.addAttribute("groups", new UserGroup().all()); //Because we want to be able to assign a role to newly created user
 
         return "admin/users/create";
     }
@@ -165,7 +165,7 @@ public class WebController extends AbstractController {
     public String users_edit(HttpServletResponse response, Model model, @PathVariable Integer id) {
         protectAdmin();
 
-        User user = User.find(id);
+        User user = new User().find(id);
         if (user == null) {
             error("User not found!");
             redirect(response, "/admin/users");
@@ -173,7 +173,7 @@ public class WebController extends AbstractController {
         }
 
         model.addAttribute("user", user);
-        model.addAttribute("groups", UserGroup.all());
+        model.addAttribute("groups", new UserGroup().all());
 
         return "admin/users/create";
     }
@@ -200,7 +200,7 @@ public class WebController extends AbstractController {
             return;
         }
 
-        User user = User.find(data.getId());
+        User user = new User().find(data.getId());
         if (user == null) {
             error("User not found!");
             redirect(response, "/admin/users");
@@ -232,7 +232,7 @@ public class WebController extends AbstractController {
          * Data validation
          * We want to validate posted username, whether it is not in use
          */
-        if (User.stream()
+        if (new User().stream()
                 .filter(u -> u.getUsername().equals(data.getUsername()))
                 .filter(u -> u.getId() != data.getId()) //we want to be able to update current user (same username)
                 .findFirst().orElse(null) != null
@@ -248,7 +248,7 @@ public class WebController extends AbstractController {
             /*
              * Search for user we want to update
              */
-            user = User.find(data.getId());
+            user = new User().find(data.getId());
             if (user == null) {
                 error("User not found!");
                 redirect(response, uri);
@@ -340,7 +340,7 @@ public class WebController extends AbstractController {
         }
 
         //Save each user to table row
-        User.all().forEach(user -> {
+        new User().all().forEach(user -> {
 
             PdfPTable row = new PdfPTable(4);
 
@@ -394,7 +394,7 @@ public class WebController extends AbstractController {
         protectAdmin();
 
         model.addAttribute("group", new UserGroup());
-        model.addAttribute("groups", UserGroup.all());
+        model.addAttribute("groups", new UserGroup().all());
 
         return "admin/groups/index";
     }
@@ -410,7 +410,7 @@ public class WebController extends AbstractController {
         protectAdmin();
 
         model.addAttribute("group", new UserGroup());
-        model.addAttribute("users", User.all());
+        model.addAttribute("users", new User().all());
 
         return "admin/groups/create";
     }
@@ -426,7 +426,7 @@ public class WebController extends AbstractController {
     public String groups_users(HttpServletResponse response, Model model, @PathVariable Integer id) {
         protectAdmin();
 
-        UserGroup group = UserGroup.find(id);
+        UserGroup group = new UserGroup().find(id);
         if (group == null) {
             error("Group not found!");
             redirect(response, "/admin/groups");
@@ -435,7 +435,7 @@ public class WebController extends AbstractController {
 
         model.addAttribute("user", new User());
         model.addAttribute("group", group);
-        model.addAttribute("users", User
+        model.addAttribute("users", new User()
                 .stream()
                 .filter(user -> user.assignedInGroup(group))
                 .collect(Collectors.toList())
@@ -456,7 +456,7 @@ public class WebController extends AbstractController {
     public String groups_edit(HttpServletResponse response, Model model, @PathVariable Integer id) {
         protectAdmin();
 
-        UserGroup group = UserGroup.find(id);
+        UserGroup group = new UserGroup().find(id);
         if (group == null) {
             error("Group not found!");
             redirect(response, "/admin/groups");
@@ -464,7 +464,7 @@ public class WebController extends AbstractController {
         }
 
         model.addAttribute("group", group);
-        model.addAttribute("users", User.all());
+        model.addAttribute("users", new User().all());
 
         return "admin/groups/create";
     }
@@ -479,7 +479,7 @@ public class WebController extends AbstractController {
     public void groups_store_user(HttpServletResponse response, @PathVariable Integer id, @ModelAttribute User data) {
         protectAdmin();
 
-        UserGroup group = UserGroup.find(id);
+        UserGroup group = new UserGroup().find(id);
         if (group == null) {
             error("Group not found!");
             redirect(response, "/admin/groups");
@@ -501,7 +501,7 @@ public class WebController extends AbstractController {
     public void groups_delete_user(HttpServletResponse response, @PathVariable Integer id, @ModelAttribute User data) {
         protectAdmin();
 
-        UserGroup group = UserGroup.find(id);
+        UserGroup group = new UserGroup().find(id);
         if (group == null) {
             error("Group not found!");
             redirect(response, "/admin/groups");
@@ -511,7 +511,7 @@ public class WebController extends AbstractController {
         /*
          * Search for user we want to remove from group
          */
-        User user = User.find(data.getId());
+        User user = new User().find(data.getId());
         if (user == null) {
             error("User not found!");
             redirect(response, "/admin/groups/" + id);
@@ -542,7 +542,7 @@ public class WebController extends AbstractController {
             return;
         }
 
-        UserGroup group = UserGroup.find(data.getId());
+        UserGroup group = new UserGroup().find(data.getId());
         if (group == null) {
             error("Group not found!");
             redirect(response, "/admin/groups");
@@ -569,7 +569,7 @@ public class WebController extends AbstractController {
         UserGroup group;
 
         if (data.getId() != 0) {
-            group = UserGroup.find(data.getId());
+            group = new UserGroup().find(data.getId());
             if (group == null) {
                 error("Group not found!");
                 redirect(response, "/admin/groups");

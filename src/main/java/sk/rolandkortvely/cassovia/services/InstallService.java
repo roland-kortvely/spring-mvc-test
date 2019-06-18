@@ -26,7 +26,7 @@ public class InstallService extends Service {
         /*
          * Creates default User "admin" with "admin" role
          */
-        User user = User.stream()
+        User user = new User().stream()
                 .filter(u -> u.getUsername().equals("admin"))
                 .findFirst().orElse(null);
         if (user == null) {

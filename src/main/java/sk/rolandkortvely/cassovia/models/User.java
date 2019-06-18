@@ -1,16 +1,15 @@
 package sk.rolandkortvely.cassovia.models;
 
-import sk.rolandkortvely.cassovia.DB;
-
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Entity
-public class User extends Model {
+public class User extends Model<User> {
+
+    public User() {
+        super(User.class);
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,27 +30,6 @@ public class User extends Model {
             inverseJoinColumns = {@JoinColumn(name = "group_id")}
     )
     private Set<UserGroup> groups = new HashSet<>();
-
-    public static User find(Integer id) {
-        return query()
-                .where("id", id)
-                .stream()
-                .findFirst().orElse(null);
-    }
-
-    public static List<User> all() {
-        return query()
-                .stream()
-                .collect(Collectors.toList());
-    }
-
-    public static QueryStream<User> query() {
-        return new QueryStream<>(User.class, DB.sessionFactory);
-    }
-
-    public static Stream<User> stream() {
-        return stream(User.class);
-    }
 
     public int getId() {
         return id;
@@ -114,11 +92,10 @@ public class User extends Model {
     }
 
     public void discardGroup(UserGroup userGroup) {
-        for (UserGroup group : groups) {
-            if (group.getId() == userGroup.getId()) {
-                this.groups.remove(group);
-            }
-        }
+        groups.stream()
+                .filter(group -> group.getId() == userGroup.getId())
+                .findFirst()
+                .ifPresent(groups::remove);
     }
 
     public Boolean getRole() {

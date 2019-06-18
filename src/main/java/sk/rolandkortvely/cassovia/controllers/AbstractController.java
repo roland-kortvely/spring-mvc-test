@@ -51,6 +51,8 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
     @Autowired
     private Environment env;
 
+    protected static User authUser = null;
+
     /**
      * @return provide error message, if exists to Thymeleaf (DANGER.. red color..)
      */
@@ -72,7 +74,7 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
      */
     @ModelAttribute("guest")
     public boolean guest() {
-        return !isLoggedIn(sessionFactory, session);
+        return !isLoggedIn(session);
     }
 
     /**
@@ -93,10 +95,15 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
      */
     @ModelAttribute("auth")
     public User auth() {
-        return auth(sessionFactory, session);
-    }
 
-    /* NOTHING IMPORTANT BELOW.. JUST A REFLECTION */
+        if (authUser != null) {
+            return authUser;
+        }
+
+        authUser = auth(session);
+
+        return authUser;
+    }
 
     public void redirect(@NotNull HttpServletResponse response) {
         redirect(response, "/");
@@ -134,18 +141,18 @@ public abstract class AbstractController extends Attributes implements Auth, Ses
     }
 
     public boolean login(User user) {
-        return login(sessionFactory, session, user);
+        return login(session, user);
     }
 
     public boolean isLoggedIn() {
-        return isLoggedIn(sessionFactory, session);
+        return isLoggedIn(session);
     }
 
     public void protectAdmin() {
-        protectAdmin(sessionFactory, session);
+        protectAdmin(session);
     }
 
     public void protect() {
-        protect(sessionFactory, session);
+        protect(session);
     }
 }

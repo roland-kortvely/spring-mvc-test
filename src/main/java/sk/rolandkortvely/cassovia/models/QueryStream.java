@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class QueryStream<AModel extends Model> extends Model {
+public class QueryStream<AModel extends Model> {
 
     private CriteriaBuilder cb;
     private Transaction tx;
@@ -119,8 +119,7 @@ public class QueryStream<AModel extends Model> extends Model {
         return this;
     }
 
-    public Stream<AModel> stream() {
-
+    public List<AModel> list() {
         if (predicateResult != null) {
 
             if (predicates.size() > 0) {
@@ -143,7 +142,17 @@ public class QueryStream<AModel extends Model> extends Model {
         tx.commit();
         session.close();
 
-        return result.stream();
+        return result;
+    }
+
+    public Stream<AModel> stream() {
+        return list().stream();
+    }
+
+    public AModel find() {
+        return list()
+                .stream()
+                .findFirst().orElse(null);
     }
 
     public enum Order {

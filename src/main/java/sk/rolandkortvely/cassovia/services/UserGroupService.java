@@ -15,13 +15,13 @@ public class UserGroupService extends Service {
     @GET
     @Produces("application/json")
     public ResponseEntity<List<UserGroup>> all() {
-        return ResponseEntity.ok().body(UserGroup.all());
+        return ResponseEntity.ok().body(new UserGroup().all());
     }
 
     @GET
     @Path("/{id}")
     @Produces("application/json")
     public ResponseEntity<UserGroup> get(@PathParam("id") int id) {
-        return ResponseEntity.ok().body(UserGroup.find(id));
+        return ResponseEntity.ok().body(new UserGroup().find(id));
     }
 }

@@ -12,7 +12,7 @@ public class UserGroupFormatter implements Formatter<UserGroup> {
 
     @Override
     public UserGroup parse(String id, Locale locale) {
-        return UserGroup.find(Integer.parseInt(id));
+        return new UserGroup().find(Integer.parseInt(id));
     }
 
     @Override

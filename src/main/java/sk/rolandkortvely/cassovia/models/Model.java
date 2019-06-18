@@ -4,26 +4,46 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import sk.rolandkortvely.cassovia.DB;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Abstract Model to extend Models with useful methods
  */
-public abstract class Model {
+public abstract class Model<AModel extends Model<AModel>> {
 
-    /**
-     * Database context (MySQL)
-     * DI does not work in new instances, we cannot use @Autowired
-     */
+    private final Class<AModel> modelClass;
 
-    protected static <AModel extends Model> Stream<AModel> stream(Class<AModel> modelClass) {
-        return new QueryStream<>(modelClass, DB.sessionFactory).stream();
+    Model(Class<AModel> modelClass) {
+        this.modelClass = modelClass;
     }
 
-    /**
-     * @param sessionTransaction Functional Interface
-     * @param <ReturnType>       Type of what we want to return from the database
-     */
+    public AModel find(Integer id) {
+        return query()
+                .where("id", id)
+                .stream()
+                .findFirst().orElse(null);
+    }
+
+    public List<AModel> all() {
+        return query()
+                .stream()
+                .collect(Collectors.toList());
+    }
+
+    public QueryStream<AModel> where(String s, Object c) {
+        return (new QueryStream<>(getModelClass(), DB.sessionFactory)).where(s, c);
+    }
+
+    public Stream<AModel> stream() {
+        return new QueryStream<>(getModelClass(), DB.sessionFactory).stream();
+    }
+
+    public QueryStream<AModel> query() {
+        return new QueryStream<>(getModelClass(), DB.sessionFactory);
+    }
+
     private static <ReturnType> void transaction(SessionTransaction<ReturnType> sessionTransaction) {
         Transaction tx = null;
 
@@ -65,5 +85,9 @@ public abstract class Model {
     @FunctionalInterface
     public interface SessionTransaction<ReturnType> {
         ReturnType commit(Session session);
+    }
+
+    private Class<AModel> getModelClass() {
+        return modelClass;
     }
 }

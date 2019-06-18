@@ -12,5 +12,4 @@ public class CassoviaApplicationTests {
     @Test
     public void contextLoads() {
     }
-
 }

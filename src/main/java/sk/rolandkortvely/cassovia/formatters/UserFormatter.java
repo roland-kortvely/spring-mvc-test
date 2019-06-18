@@ -11,7 +11,7 @@ public class UserFormatter implements Formatter<User> {
 
     @Override
     public User parse(String id, Locale locale) {
-        return User.find(Integer.parseInt(id));
+        return new User().find(Integer.parseInt(id));
     }
 
     @Override

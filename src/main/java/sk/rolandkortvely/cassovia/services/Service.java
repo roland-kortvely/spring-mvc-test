@@ -54,18 +54,18 @@ public abstract class Service implements Auth {
     }
 
     public boolean login(User user) {
-        return login(sessionFactory, session, user);
+        return login(session, user);
     }
 
     public boolean isLoggedIn() {
-        return isLoggedIn(sessionFactory, session);
+        return isLoggedIn(session);
     }
 
     public void protectAdmin() {
-        protectAdmin(sessionFactory, session);
+        protectAdmin(session);
     }
 
     public void protect() {
-        protect(sessionFactory, session);
+        protect(session);
     }
 }
